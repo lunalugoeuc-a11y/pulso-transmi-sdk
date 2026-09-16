@@ -5,6 +5,19 @@ ejemplos reproducibles y una plantilla de GitHub Actions para construir un
 pipeline que descargue datos, entrene, monitoree y posteriormente envíe
 predicciones.
 
+## Documentación
+
+- [Documentación técnica integral](docs/documentacion-tecnica.md): arquitectura,
+  instalación, componentes, datos, EDA, pruebas, automatización, seguridad,
+  estado y pendientes.
+- [Modelo entidad–relación](documentacion/diagrama-entidad-relacion.md): entidades,
+  claves, cardinalidades, evidencia y límites del modelo lógico.
+- [Referencia de la API](docs/api.md): paginación, filtros, descargas y errores.
+- [Guía del proyecto estudiantil](docs/student-project.md): etapas y entregables.
+- [Guía del EDA](eda%20proyecto/README.md): ejecución y contenido del notebook.
+- [Proyecto Supabase](docs/supabase.md): instancia, esquema desplegado, seguridad
+  y orden de carga.
+
 > **Disponible públicamente:** la API de lectura está en
 > `https://pulso-transmi.72-60-245-2.sslip.io` y su documentación interactiva en
 > [`/docs`](https://pulso-transmi.72-60-245-2.sslip.io/docs).

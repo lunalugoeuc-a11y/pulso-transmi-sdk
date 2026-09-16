@@ -1,0 +1,613 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3300 2080" role="img" aria-labelledby="er-title er-desc"><title id="er-title">Pulso TransMi: modelo ER propuesto de 15 entidades</title><desc id="er-desc">Datos, ingesta, experimentos, predicción y monitoreo. Cada conector tiene un identificador con detalle en la documentación.</desc>
+<rect x="0" y="0" width="3300" height="2080" rx="0" fill="#f3f6fb"/>
+<text x="60" y="61.25" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#377190">PULSO / TRANSMI</text>
+<text x="60" y="142.4" font-family="Arial,sans-serif" font-size="64" font-weight="700" fill="#18304b">Modelo entidad–relación</text>
+<text x="62" y="193.1" font-family="Arial,sans-serif" font-size="26" font-weight="400" fill="#58708b">15 entidades  /  24 relaciones  /  trazabilidad desde la ingesta hasta la evaluación</text>
+<rect x="2625" y="75" width="610" height="82" rx="16" fill="#e7edf6"/>
+<text x="2652" y="111.4" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#24435f">ARQUITECTURA PROPUESTA</text>
+<text x="2652" y="140.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#58708b">No representa la base interna de la API</text>
+<rect x="44" y="223" width="572" height="1695" rx="20" fill="#eaf0f7"/>
+<rect x="60" y="240" width="540" height="50" rx="10" fill="#146b82"/>
+<text x="77" y="272.55" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">01  RED Y DEMANDA</text>
+<rect x="704" y="223" width="572" height="1695" rx="20" fill="#eaf0f7"/>
+<rect x="720" y="240" width="540" height="50" rx="10" fill="#216dc4"/>
+<text x="737" y="272.55" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">02  DATOS E INGESTA</text>
+<rect x="1364" y="223" width="572" height="1695" rx="20" fill="#eaf0f7"/>
+<rect x="1380" y="240" width="540" height="50" rx="10" fill="#7353b6"/>
+<text x="1397" y="272.55" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">03  EXPERIMENTACIÓN</text>
+<rect x="2024" y="223" width="572" height="1695" rx="20" fill="#eaf0f7"/>
+<rect x="2040" y="240" width="540" height="50" rx="10" fill="#bd6a24"/>
+<text x="2057" y="272.55" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">04  OPERACIÓN</text>
+<rect x="2684" y="223" width="572" height="1695" rx="20" fill="#eaf0f7"/>
+<rect x="2700" y="240" width="540" height="50" rx="10" fill="#b34268"/>
+<text x="2717" y="272.55" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">05  SEGUIMIENTO</text>
+<g class="relation" data-source="corridors" data-target="stations" data-rid="R01"><title>corridors 1 → stations 0..N; corridor_id</title>
+<polyline points="330,760 330,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="320,772 340,772" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="320,780 340,780" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="330" cy="840" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="330,850 319,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="330,850 330,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="330,850 341,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="348" y="819.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R01 · 1:N</text>
+</g>
+<g class="relation" data-source="stations" data-target="observations" data-rid="R02"><title>stations 1 → observations 0..N; station_id</title>
+<polyline points="330,1295 330,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="320,1307 340,1307" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="320,1315 340,1315" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="330" cy="1375" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="330,1385 319,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="330,1385 330,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="330,1385 341,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="348" y="1354.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R02 · 1:N</text>
+</g>
+<g class="relation" data-source="dataset_snapshots" data-target="context_records" data-rid="R03"><title>dataset_snapshots 1 → context_records 0..N; snapshot_id</title>
+<polyline points="990,760 990,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="980,772 1000,772" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="980,780 1000,780" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="990" cy="840" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="990,850 979,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="990,850 990,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="990,850 1001,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1008" y="819.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R03 · 1:N</text>
+</g>
+<g class="relation" data-source="context_records" data-target="observations" data-rid="R04"><title>context_records 1 → observations 0..N; (snapshot_id, observed_at)</title>
+<polyline points="1260,975 1280,975 1280,1345 28,1345 28,1546 60,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1268,968 1268,982" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1275,968 1275,982" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="36" cy="1546" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="45,1546 60,1538" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="45,1546 60,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="45,1546 60,1554" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="17" y="1533.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R04</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="dataset_snapshots" data-rid="R05"><title>pipeline_runs 1 → dataset_snapshots 0..N; run_id</title>
+<polyline points="2580,440 2600,440 2600,303 698,303 698,445 720,445" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,433 2588,447" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,433 2595,447" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="696" cy="445" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="705,445 720,437" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="705,445 720,445" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="705,445 720,453" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="677" y="432.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R05</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="ingestion_checkpoints" data-rid="R06"><title>pipeline_runs 1 → ingestion_checkpoints 0..N; run_id</title>
+<polyline points="2580,469 2610,469 2610,1381 698,1381 698,1515 720,1515" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,462 2588,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,462 2595,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="696" cy="1515" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="705,1515 720,1507" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="705,1515 720,1515" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="705,1515 720,1523" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="677" y="1502.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R06</text>
+</g>
+<g class="relation" data-source="dataset_snapshots" data-target="experiments" data-rid="R07"><title>dataset_snapshots 1 → experiments 0..N; snapshot_id</title>
+<polyline points="1260,469 1290,469 1290,834 1358,834 1358,980 1380,980" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1268,462 1268,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1275,462 1275,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1356" cy="980" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1365,980 1380,972" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1365,980 1380,980" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1365,980 1380,988" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1337" y="967.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R07</text>
+</g>
+<g class="relation" data-source="feature_sets" data-target="experiments" data-rid="R08"><title>feature_sets 1 → experiments 0..N; feature_set_id</title>
+<polyline points="1650,760 1650,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1640,772 1660,772" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1640,780 1660,780" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1650" cy="840" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1650,850 1639,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1650,850 1650,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1650,850 1661,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1668" y="819.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R08 · 1:N</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="experiments" data-rid="R09"><title>pipeline_runs 1 → experiments 0..N; run_id</title>
+<polyline points="2580,498 2620,498 2620,810 1338,810 1338,1042 1380,1042" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,491 2588,505" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,491 2595,505" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1356" cy="1042" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1365,1042 1380,1034" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1365,1042 1380,1042" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1365,1042 1380,1050" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1337" y="1029.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R09</text>
+</g>
+<g class="relation" data-source="experiments" data-target="model_versions" data-rid="R10"><title>experiments 1 → model_versions 0..N; experiment_id</title>
+<polyline points="1650,1295 1650,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1640,1307 1660,1307" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1640,1315 1660,1315" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1650" cy="1375" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1650,1385 1639,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1650,1385 1650,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1650,1385 1661,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1668" y="1354.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R10 · 1:N</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="forecast_batches" data-rid="R11"><title>pipeline_runs 1 → forecast_batches 0..N; run_id</title>
+<polyline points="2310,760 2310,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2300,772 2320,772" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2300,780 2320,780" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2310" cy="840" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2310,850 2299,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2310,850 2310,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2310,850 2321,870" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2328" y="819.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R11 · 1:N</text>
+</g>
+<g class="relation" data-source="model_versions" data-target="forecast_batches" data-rid="R12"><title>model_versions 1 → forecast_batches 0..N; model_version_id</title>
+<polyline points="1920,1510 1940,1510 1940,834 2008,834 2008,1011 2040,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1928,1503 1928,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1935,1503 1935,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2016" cy="1011" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2025,1011 2040,1003" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1011 2040,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1011 2040,1019" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1997" y="998.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R12</text>
+</g>
+<g class="relation" data-source="dataset_snapshots" data-target="forecast_batches" data-rid="R13"><title>dataset_snapshots 1 → forecast_batches 0..N; snapshot_id</title>
+<polyline points="1260,498 1300,498 1300,822 1998,822 1998,1042 2040,1042" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1268,491 1268,505" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1275,491 1275,505" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2016" cy="1042" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2025,1042 2040,1034" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1042 2040,1042" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1042 2040,1050" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1997" y="1029.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R13</text>
+</g>
+<g class="relation" data-source="forecast_batches" data-target="forecasts" data-rid="R14"><title>forecast_batches 1 → forecasts 0..N; batch_id</title>
+<polyline points="2310,1295 2310,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2300,1307 2320,1307" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2300,1315 2320,1315" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2310" cy="1375" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2310,1385 2299,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2310,1385 2310,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2310,1385 2321,1405" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2328" y="1354.45" font-family="Arial,sans-serif" font-size="17" font-weight="400" fill="#526e89">R14 · 1:N</text>
+</g>
+<g class="relation" data-source="stations" data-target="forecasts" data-rid="R15"><title>stations 1 → forecasts 0..N; station_id</title>
+<polyline points="600,1004 630,1004 630,1333 2008,1333 2008,1546 2040,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="608,997 608,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="615,997 615,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2016" cy="1546" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2025,1546 2040,1538" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1546 2040,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2025,1546 2040,1554" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="1997" y="1533.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R15</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="monitoring_events" data-rid="R16"><title>pipeline_runs 1 → monitoring_events 0..N; run_id</title>
+<polyline points="2580,556 2640,556 2640,323 2678,323 2678,445 2700,445" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,549 2588,563" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,549 2595,563" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="445" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,445 2700,437" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,445 2700,445" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,445 2700,453" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="432.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R16</text>
+</g>
+<g class="relation" data-source="dataset_snapshots" data-target="monitoring_events" data-rid="R17"><title>dataset_snapshots 1 → monitoring_events 0..N; snapshot_id</title>
+<polyline points="1260,527 1310,527 1310,318 2668,318 2668,476 2700,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1268,520 1268,534" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="1275,520 1275,534" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="476" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,476 2700,468" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,476 2700,476" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,476 2700,484" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="463.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R17</text>
+</g>
+<g class="relation" data-source="dataset_snapshots" data-target="monitoring_events" data-rid="R18"><title>dataset_snapshots 0..1 → monitoring_events 0..N; reference_snapshot_id</title>
+<polyline points="1260,556 1320,556 1320,313 2658,313 2658,507 2700,507" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1271" cy="556" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1281,549 1281,563" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="507" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,507 2700,499" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,507 2700,507" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,507 2700,515" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="494.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R18</text>
+</g>
+<g class="relation" data-source="model_versions" data-target="monitoring_events" data-rid="R19"><title>model_versions 0..1 → monitoring_events 0..N; model_version_id</title>
+<polyline points="1920,1539 1950,1539 1950,308 2648,308 2648,538 2700,538" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="1931" cy="1539" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="1941,1532 1941,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="538" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,538 2700,530" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,538 2700,538" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,538 2700,546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="525.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R19</text>
+</g>
+<g class="relation" data-source="stations" data-target="monitoring_events" data-rid="R20"><title>stations 0..1 → monitoring_events 0..N; station_id</title>
+<polyline points="600,1033 640,1033 640,303 2638,303 2638,569 2700,569" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="611" cy="1033" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="621,1026 621,1040" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="569" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,569 2700,561" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,569 2700,569" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,569 2700,577" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="556.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R20</text>
+</g>
+<g class="relation" data-source="forecasts" data-target="evaluations" data-rid="R21"><title>forecasts 1 → evaluations 0..N; (forecast_id, station_id, target_at)</title>
+<polyline points="2580,1510 2600,1510 2600,846 2678,846 2678,980 2700,980" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,1503 2588,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,1503 2595,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="980" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,980 2700,972" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,980 2700,980" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,980 2700,988" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="967.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R21</text>
+</g>
+<g class="relation" data-source="observations" data-target="evaluations" data-rid="R22"><title>observations 1 → evaluations 0..N; (actual_snapshot_id, station_id, target_at)</title>
+<polyline points="600,1510 620,1510 620,834 2668,834 2668,1011 2700,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="608,1503 608,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="615,1503 615,1517" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="1011" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,1011 2700,1003" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1011 2700,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1011 2700,1019" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="998.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R22</text>
+</g>
+<g class="relation" data-source="forecast_batches" data-target="submissions" data-rid="R23"><title>forecast_batches 1 → submissions 0..N; batch_id</title>
+<polyline points="2580,1004 2610,1004 2610,1357 2678,1357 2678,1515 2700,1515" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,997 2588,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,997 2595,1011" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="1515" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,1515 2700,1507" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1515 2700,1515" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1515 2700,1523" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="1502.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R23</text>
+</g>
+<g class="relation" data-source="pipeline_runs" data-target="submissions" data-rid="R24"><title>pipeline_runs 1 → submissions 0..N; run_id</title>
+<polyline points="2580,585 2600,585 2600,1345 2668,1345 2668,1546 2700,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2588,578 2588,592" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2595,578 2595,592" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="2676" cy="1546" r="6" fill="#f3f6fb" stroke="#acbbcc" stroke-width="2"/>
+<polyline points="2685,1546 2700,1538" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1546 2700,1546" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="2685,1546 2700,1554" fill="none" stroke="#acbbcc" stroke-width="2" stroke-linejoin="round"/>
+<text x="2657" y="1533.2" font-family="Arial,sans-serif" font-size="12" font-weight="400" fill="#607892">R24</text>
+</g>
+<g class="entity" data-entity="corridors" tabindex="0" role="button" aria-label="Corredores: resaltar relaciones"><title>Catálogo propuesto a partir de los nombres de corredor de la API.</title>
+<rect x="60" y="335" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="60" y="335" width="6" height="425" rx="2" fill="#146b82"/>
+<text x="84" y="372.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#146b82">01</text>
+<text x="132" y="373.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Corredores</text>
+<text x="85" y="407.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">corridors</text>
+<text x="410" y="405.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#146b82">PROPUESTA</text>
+<polyline points="82,425 578,425" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="83" y="456.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">PK</text>
+<text x="178" y="460.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">corridor_id</text>
+<text x="83" y="488.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">UQ</text>
+<text x="178" y="492.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">name</text>
+<text x="84" y="745.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="stations" tabindex="0" role="button" aria-label="Estaciones: resaltar relaciones"><title>Datos del catálogo existente; corridor se normaliza como FK. El ID conserva ceros iniciales.</title>
+<rect x="60" y="870" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="60" y="870" width="6" height="425" rx="2" fill="#146b82"/>
+<text x="84" y="907.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#146b82">02</text>
+<text x="132" y="908.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Estaciones</text>
+<text x="85" y="942.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">stations</text>
+<text x="410" y="940.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#146b82">API + EXTENSIÓN</text>
+<polyline points="82,960 578,960" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="83" y="991.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">PK</text>
+<text x="178" y="995.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">station_id</text>
+<text x="83" y="1023.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">FK</text>
+<text x="178" y="1027.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">corridor_id</text>
+<text x="83" y="1055.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#146b82">·</text>
+<text x="178" y="1059.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">station_name</text>
+<text x="83" y="1087.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#146b82">·</text>
+<text x="178" y="1091.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">latitude</text>
+<text x="83" y="1119.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#146b82">·</text>
+<text x="178" y="1123.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">longitude</text>
+<text x="84" y="1280.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="observations" tabindex="0" role="button" aria-label="Demanda observada: resaltar relaciones"><title>PK (snapshot_id, station_id, observed_at). Una fila por estación e instante dentro de cada corte inmutable.</title>
+<rect x="60" y="1405" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="60" y="1405" width="6" height="425" rx="2" fill="#146b82"/>
+<text x="84" y="1442.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#146b82">03</text>
+<text x="132" y="1443.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Demanda observada</text>
+<text x="85" y="1477.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">observations</text>
+<text x="410" y="1475.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#146b82">API + EXTENSIÓN</text>
+<polyline points="82,1495 578,1495" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="83" y="1526.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">PK · FK</text>
+<text x="178" y="1530.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">snapshot_id</text>
+<text x="83" y="1558.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">PK · FK</text>
+<text x="178" y="1562.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">station_id</text>
+<text x="83" y="1590.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#146b82">PK · FK</text>
+<text x="178" y="1594.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">observed_at</text>
+<text x="83" y="1622.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#146b82">·</text>
+<text x="178" y="1626.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">demand</text>
+<text x="84" y="1815.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="dataset_snapshots" tabindex="0" role="button" aria-label="Cortes de datos: resaltar relaciones"><title>Manifiesto inmutable con hashes y URIs de observaciones, contexto y catálogo original. Cada corte permite reconstruir sus datos.</title>
+<rect x="720" y="335" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="720" y="335" width="6" height="425" rx="2" fill="#216dc4"/>
+<text x="744" y="372.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#216dc4">04</text>
+<text x="792" y="373.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Cortes de datos</text>
+<text x="745" y="407.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">dataset_snapshots</text>
+<text x="1070" y="405.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#216dc4">PROPUESTA</text>
+<polyline points="742,425 1238,425" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="743" y="456.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">PK</text>
+<text x="838" y="460.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">snapshot_id</text>
+<text x="743" y="488.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">FK</text>
+<text x="838" y="492.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="743" y="520.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="524.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">dataset_version</text>
+<text x="743" y="552.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="556.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">cutoff_at</text>
+<text x="743" y="584.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="588.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">captured_at</text>
+<text x="743" y="616.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="620.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">manifest_uri</text>
+<text x="743" y="648.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">UQ</text>
+<text x="838" y="652.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">manifest_sha256</text>
+<text x="744" y="745.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="context_records" tabindex="0" role="button" aria-label="Clima y eventos: resaltar relaciones"><title>PK (snapshot_id, observed_at). Contexto compartido por las estaciones de un mismo corte e instante.</title>
+<rect x="720" y="870" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="720" y="870" width="6" height="425" rx="2" fill="#216dc4"/>
+<text x="744" y="907.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#216dc4">05</text>
+<text x="792" y="908.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Clima y eventos</text>
+<text x="745" y="942.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">context_records</text>
+<text x="1070" y="940.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#216dc4">API + EXTENSIÓN</text>
+<polyline points="742,960 1238,960" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="743" y="991.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">PK · FK</text>
+<text x="838" y="995.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">snapshot_id</text>
+<text x="743" y="1023.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">PK</text>
+<text x="838" y="1027.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">observed_at</text>
+<text x="743" y="1055.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1059.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">rain_mm</text>
+<text x="743" y="1087.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1091.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">rain_forecast</text>
+<text x="743" y="1119.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1123.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">temperature_c</text>
+<text x="743" y="1151.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1155.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">temperature_forecast</text>
+<text x="743" y="1183.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1187.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">event_intensity</text>
+<text x="744" y="1280.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="ingestion_checkpoints" tabindex="0" role="button" aria-label="Estado de ingesta: resaltar relaciones"><title>Historial de checkpoints confirmados por endpoint y filtros. UQ (run_id, stream, scope_key). No se avanza al fallar la persistencia.</title>
+<rect x="720" y="1405" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="720" y="1405" width="6" height="425" rx="2" fill="#216dc4"/>
+<text x="744" y="1442.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#216dc4">06</text>
+<text x="792" y="1443.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Estado de ingesta</text>
+<text x="745" y="1477.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">ingestion_checkpoints</text>
+<text x="1070" y="1475.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#216dc4">PROPUESTA</text>
+<polyline points="742,1495 1238,1495" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="743" y="1526.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">PK</text>
+<text x="838" y="1530.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">checkpoint_id</text>
+<text x="743" y="1558.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">FK</text>
+<text x="838" y="1562.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="743" y="1590.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1594.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">stream</text>
+<text x="743" y="1622.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1626.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">scope_key</text>
+<text x="743" y="1654.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">?</text>
+<text x="838" y="1658.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">cursor_value</text>
+<text x="743" y="1686.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#216dc4">?</text>
+<text x="838" y="1690.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">last_seen_at</text>
+<text x="743" y="1718.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#216dc4">·</text>
+<text x="838" y="1722.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">committed_at</text>
+<text x="744" y="1815.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="feature_sets" tabindex="0" role="button" aria-label="Versiones de variables: resaltar relaciones"><title>Definición versionada de variables y transformaciones. UQ (name, version); no contiene valores futuros calculados sobre toda la historia.</title>
+<rect x="1380" y="335" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="1380" y="335" width="6" height="425" rx="2" fill="#7353b6"/>
+<text x="1404" y="372.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#7353b6">07</text>
+<text x="1452" y="373.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Versiones de variables</text>
+<text x="1405" y="407.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">feature_sets</text>
+<text x="1730" y="405.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#7353b6">PROPUESTA</text>
+<polyline points="1402,425 1898,425" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="1403" y="456.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">PK</text>
+<text x="1498" y="460.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">feature_set_id</text>
+<text x="1403" y="488.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="492.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">name</text>
+<text x="1403" y="520.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="524.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">version</text>
+<text x="1403" y="552.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="556.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">definition_uri</text>
+<text x="1403" y="584.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">UQ</text>
+<text x="1498" y="588.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">definition_sha256</text>
+<text x="1403" y="616.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="620.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">git_commit</text>
+<text x="1404" y="745.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="experiments" tabindex="0" role="button" aria-label="Experimentos: resaltar relaciones"><title>Cada registro representa una configuración y una ventana de backtesting. Los resultados enlazan un informe reproducible.</title>
+<rect x="1380" y="870" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="1380" y="870" width="6" height="425" rx="2" fill="#7353b6"/>
+<text x="1404" y="907.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#7353b6">08</text>
+<text x="1452" y="908.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Experimentos</text>
+<text x="1405" y="942.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">experiments</text>
+<text x="1730" y="940.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#7353b6">PROPUESTA</text>
+<polyline points="1402,960 1898,960" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="1403" y="991.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">PK</text>
+<text x="1498" y="995.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">experiment_id</text>
+<text x="1403" y="1023.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">FK</text>
+<text x="1498" y="1027.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">snapshot_id</text>
+<text x="1403" y="1055.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">FK</text>
+<text x="1498" y="1059.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">feature_set_id</text>
+<text x="1403" y="1087.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">FK</text>
+<text x="1498" y="1091.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="1403" y="1119.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1123.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">train_start / train_end</text>
+<text x="1403" y="1151.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1155.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">valid_start / valid_end</text>
+<text x="1403" y="1183.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1187.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">parameters</text>
+<text x="1403" y="1215.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">?</text>
+<text x="1498" y="1219.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">results_uri</text>
+<text x="1404" y="1280.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="model_versions" tabindex="0" role="button" aria-label="Versiones de modelo: resaltar relaciones"><title>Artefacto inmutable derivado de un experimento. UQ (name, version); la versión usada se fija en cada lote de predicción.</title>
+<rect x="1380" y="1405" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="1380" y="1405" width="6" height="425" rx="2" fill="#7353b6"/>
+<text x="1404" y="1442.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#7353b6">09</text>
+<text x="1452" y="1443.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Versiones de modelo</text>
+<text x="1405" y="1477.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">model_versions</text>
+<text x="1730" y="1475.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#7353b6">PROPUESTA</text>
+<polyline points="1402,1495 1898,1495" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="1403" y="1526.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">PK</text>
+<text x="1498" y="1530.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">model_version_id</text>
+<text x="1403" y="1558.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">FK</text>
+<text x="1498" y="1562.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">experiment_id</text>
+<text x="1403" y="1590.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1594.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">name / version</text>
+<text x="1403" y="1622.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1626.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">artifact_uri</text>
+<text x="1403" y="1654.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#7353b6">UQ</text>
+<text x="1498" y="1658.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">artifact_sha256</text>
+<text x="1403" y="1686.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1690.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">created_at</text>
+<text x="1403" y="1718.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#7353b6">·</text>
+<text x="1498" y="1722.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">status</text>
+<text x="1404" y="1815.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="pipeline_runs" tabindex="0" role="button" aria-label="Ejecuciones: resaltar relaciones"><title>Una ejecución de pipeline, incluida la identificación del intento externo. Registra fallos aunque no produzca datos ni modelos.</title>
+<rect x="2040" y="335" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2040" y="335" width="6" height="425" rx="2" fill="#bd6a24"/>
+<text x="2064" y="372.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#bd6a24">10</text>
+<text x="2112" y="373.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Ejecuciones</text>
+<text x="2065" y="407.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">pipeline_runs</text>
+<text x="2390" y="405.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#bd6a24">PROPUESTA</text>
+<polyline points="2062,425 2558,425" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2063" y="456.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">PK</text>
+<text x="2158" y="460.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">run_id</text>
+<text x="2063" y="488.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">UQ</text>
+<text x="2158" y="492.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">external_run_id</text>
+<text x="2063" y="520.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="524.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">trigger_type</text>
+<text x="2063" y="552.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="556.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">git_commit</text>
+<text x="2063" y="584.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="588.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">started_at</text>
+<text x="2063" y="616.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">?</text>
+<text x="2158" y="620.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">finished_at</text>
+<text x="2063" y="648.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="652.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">status</text>
+<text x="2063" y="680.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">?</text>
+<text x="2158" y="684.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">error_detail</text>
+<text x="2064" y="745.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="forecast_batches" tabindex="0" role="button" aria-label="Lotes de predicción: resaltar relaciones"><title>Fija modelo, datos y origen del pronóstico. mode distingue backtest y operación; issued_at es el momento de creación real.</title>
+<rect x="2040" y="870" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2040" y="870" width="6" height="425" rx="2" fill="#bd6a24"/>
+<text x="2064" y="907.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#bd6a24">11</text>
+<text x="2112" y="908.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Lotes de predicción</text>
+<text x="2065" y="942.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">forecast_batches</text>
+<text x="2390" y="940.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#bd6a24">PROPUESTA</text>
+<polyline points="2062,960 2558,960" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2063" y="991.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">PK</text>
+<text x="2158" y="995.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">batch_id</text>
+<text x="2063" y="1023.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">FK</text>
+<text x="2158" y="1027.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="2063" y="1055.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">FK</text>
+<text x="2158" y="1059.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">model_version_id</text>
+<text x="2063" y="1087.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">FK</text>
+<text x="2158" y="1091.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">snapshot_id</text>
+<text x="2063" y="1119.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1123.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">issued_at</text>
+<text x="2063" y="1151.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1155.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">origin_at</text>
+<text x="2063" y="1183.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1187.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">mode</text>
+<text x="2064" y="1280.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="forecasts" tabindex="0" role="button" aria-label="Predicciones: resaltar relaciones"><title>UQ (batch_id, station_id, target_at). Un lote puede incluir varias estaciones y horizontes. Horizonte relativo a origin_at.</title>
+<rect x="2040" y="1405" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2040" y="1405" width="6" height="425" rx="2" fill="#bd6a24"/>
+<text x="2064" y="1442.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#bd6a24">12</text>
+<text x="2112" y="1443.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Predicciones</text>
+<text x="2065" y="1477.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">forecasts</text>
+<text x="2390" y="1475.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#bd6a24">PROPUESTA</text>
+<polyline points="2062,1495 2558,1495" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2063" y="1526.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">PK</text>
+<text x="2158" y="1530.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">forecast_id</text>
+<text x="2063" y="1558.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">FK</text>
+<text x="2158" y="1562.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">batch_id</text>
+<text x="2063" y="1590.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#bd6a24">FK</text>
+<text x="2158" y="1594.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">station_id</text>
+<text x="2063" y="1622.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1626.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">target_at</text>
+<text x="2063" y="1654.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1658.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">horizon_minutes</text>
+<text x="2063" y="1686.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#bd6a24">·</text>
+<text x="2158" y="1690.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">predicted_demand</text>
+<text x="2064" y="1815.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="monitoring_events" tabindex="0" role="button" aria-label="Monitoreo y decisiones: resaltar relaciones"><title>Calidad, drift y decisiones de conservar/reentrenar. evidence guarda método, ventanas, umbrales y resultados; sin modelo para alertas de ingesta.</title>
+<rect x="2700" y="335" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2700" y="335" width="6" height="425" rx="2" fill="#b34268"/>
+<text x="2724" y="372.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#b34268">13</text>
+<text x="2772" y="373.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Monitoreo y decisiones</text>
+<text x="2725" y="407.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">monitoring_events</text>
+<text x="3050" y="405.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#b34268">PROPUESTA</text>
+<polyline points="2722,425 3218,425" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2723" y="456.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">PK</text>
+<text x="2818" y="460.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">event_id</text>
+<text x="2723" y="488.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="492.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="2723" y="520.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="524.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">snapshot_id</text>
+<text x="2723" y="552.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK · ?</text>
+<text x="2818" y="556.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">reference_snapshot_id</text>
+<text x="2723" y="584.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK · ?</text>
+<text x="2818" y="588.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">model_version_id</text>
+<text x="2723" y="616.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK · ?</text>
+<text x="2818" y="620.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">station_id</text>
+<text x="2723" y="648.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="652.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">event_type / detected_at</text>
+<text x="2723" y="680.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="684.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">evidence / action</text>
+<text x="2724" y="745.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="evaluations" tabindex="0" role="button" aria-label="Evaluaciones: resaltar relaciones"><title>UQ (forecast_id, actual_snapshot_id). Une una predicción a una observación exacta; permite reevaluar contra revisiones de datos.</title>
+<rect x="2700" y="870" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2700" y="870" width="6" height="425" rx="2" fill="#b34268"/>
+<text x="2724" y="907.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#b34268">14</text>
+<text x="2772" y="908.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Evaluaciones</text>
+<text x="2725" y="942.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">evaluations</text>
+<text x="3050" y="940.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#b34268">PROPUESTA</text>
+<polyline points="2722,960 3218,960" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2723" y="991.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">PK</text>
+<text x="2818" y="995.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">evaluation_id</text>
+<text x="2723" y="1023.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1027.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">forecast_id</text>
+<text x="2723" y="1055.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1059.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">actual_snapshot_id</text>
+<text x="2723" y="1087.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1091.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">station_id</text>
+<text x="2723" y="1119.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1123.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">target_at</text>
+<text x="2723" y="1151.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1155.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">absolute_error</text>
+<text x="2723" y="1183.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1187.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">evaluated_at</text>
+<text x="2724" y="1280.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<g class="entity" data-entity="submissions" tabindex="0" role="button" aria-label="Envíos y respuestas: resaltar relaciones"><title>Un registro por intento. UQ (batch_id, attempt_no). Contrato propuesto pendiente de la API competitiva; no contiene credenciales.</title>
+<rect x="2700" y="1405" width="540" height="425" rx="14" fill="#ffffff" stroke="#d6e0ec"/>
+<rect x="2700" y="1405" width="6" height="425" rx="2" fill="#b34268"/>
+<text x="2724" y="1442.85" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#b34268">15</text>
+<text x="2772" y="1443.95" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#18304b">Envíos y respuestas</text>
+<text x="2725" y="1477.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#6d7d91">submissions</text>
+<text x="3050" y="1475.9" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#b34268">PROPUESTA</text>
+<polyline points="2722,1495 3218,1495" fill="none" stroke="#e5ebf3" stroke-width="1" stroke-linejoin="round"/>
+<text x="2723" y="1526.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">PK</text>
+<text x="2818" y="1530.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#18304b">submission_id</text>
+<text x="2723" y="1558.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1562.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">batch_id</text>
+<text x="2723" y="1590.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">FK</text>
+<text x="2818" y="1594.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">run_id</text>
+<text x="2723" y="1622.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1626.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">attempt_no</text>
+<text x="2723" y="1654.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1658.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">idempotency_key</text>
+<text x="2723" y="1686.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1690.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">sent_at</text>
+<text x="2723" y="1718.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#b34268">·</text>
+<text x="2818" y="1722.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">status</text>
+<text x="2723" y="1750.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">?</text>
+<text x="2818" y="1754.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">remote_id</text>
+<text x="2723" y="1782.6" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b34268">?</text>
+<text x="2818" y="1786.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#18304b">response_detail</text>
+<text x="2724" y="1815.6" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#748398">PK primaria   FK referencia   UQ única   ? opcional</text>
+</g>
+<text x="60" y="1971.0" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#58708b">LECTURA</text>
+<text x="60" y="2012.55" font-family="Arial,sans-serif" font-size="23" font-weight="400" fill="#18304b">1:N  Uno a muchos    ·    R01–R24  Relaciones documentadas    ·    Las claves compuestas se detallan en la ficha de cada entidad.</text>
+<text x="60" y="2052.85" font-family="Arial,sans-serif" font-size="21" font-weight="400" fill="#58708b">Propuesta basada en el SDK, el EDA y la guía estudiantil. Horizontes y contrato de submissions pendientes de publicación.</text>
+</svg>
