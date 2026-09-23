@@ -61,9 +61,26 @@ class PulsoTransmiClient:
     def close(self) -> None:
         self._client.close()
 
+    def _raw_get(
+        self,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        attempts: int = 4,
+    ) -> httpx.Response:
+        """GET with bounded retries for transient network failures."""
+        for attempt in range(attempts):
+            try:
+                return self._client.get(path, params=params)
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                if attempt + 1 == attempts:
+                    raise PulsoTransmiError(f"GET {path} transport failed") from exc
+                time.sleep(2**attempt)
+        raise PulsoTransmiError(f"GET {path} attempts exhausted")
+
     def _get(self, path: str, *, params: dict[str, Any] | None = None) -> httpx.Response:
         try:
-            response = self._client.get(path, params=params)
+            response = self._raw_get(path, params=params)
             response.raise_for_status()
             return response
         except httpx.HTTPError as exc:
@@ -175,7 +192,7 @@ class PulsoTransmiClient:
         self, *, cursor: str | None = None, limit: int = 5000
     ) -> dict[str, Any]:
         """Return one competition stream page without interpreting its cursor."""
-        response = self._client.get(
+        response = self._raw_get(
             "/v1/stream/observations",
             params={key: value for key, value in {"cursor": cursor, "limit": limit}.items() if value is not None},
         )
@@ -185,7 +202,7 @@ class PulsoTransmiClient:
 
     def current_cycle(self) -> dict[str, Any] | None:
         """Return the open cycle, or ``None`` for the expected no-cycle response."""
-        response = self._client.get("/v1/forecast-cycles/current")
+        response = self._raw_get("/v1/forecast-cycles/current")
         if response.status_code == 404:
             error = self._api_error(response, "current cycle")
             if error.code == "no_open_cycle":
@@ -196,7 +213,7 @@ class PulsoTransmiClient:
         return response.json()
 
     def identity(self) -> dict[str, Any]:
-        response = self._client.get("/v1/me")
+        response = self._raw_get("/v1/me")
         if response.is_error:
             raise self._api_error(response, "participant identity")
         return response.json()
