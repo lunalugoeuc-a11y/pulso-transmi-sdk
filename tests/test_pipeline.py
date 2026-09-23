@@ -7,6 +7,7 @@ import pytest
 
 from pulso_transmi.pipeline import (
     run_pipeline,
+    hybrid_seasonal_predictions,
     seasonal_naive_predictions,
     validate_exact_targets,
 )
@@ -170,3 +171,27 @@ def test_weekly_seasonal_predictions_use_seven_day_lag() -> None:
     predictions = seasonal_naive_predictions(history, current, lag_days=7)
     assert len(predictions) == current["expected_predictions"]
     assert {prediction["value"] for prediction in predictions} == {321}
+
+
+def test_hybrid_predictions_average_daily_and_weekly_lags() -> None:
+    current = cycle()
+    history = []
+    for target in current["targets"]:
+        target_at = datetime.fromisoformat(target["target_at"])
+        history.extend(
+            [
+                {
+                    "station_id": target["station_id"],
+                    "observed_at": (target_at - timedelta(days=1)).isoformat(),
+                    "demand": 100,
+                },
+                {
+                    "station_id": target["station_id"],
+                    "observed_at": (target_at - timedelta(days=7)).isoformat(),
+                    "demand": 300,
+                },
+            ]
+        )
+    predictions = hybrid_seasonal_predictions(history, current)
+    assert len(predictions) == current["expected_predictions"]
+    assert {prediction["value"] for prediction in predictions} == {200}

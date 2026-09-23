@@ -24,6 +24,12 @@ promedio por estación y el semanal obtuvo 83,11 %. Por ello, el candidato
 recomendado para promoción es `seasonal_naive_lag_672:2.0.0`. Si el instante
 estacional falta, usa el último valor conocido hasta `data_cutoff`.
 
+Tras observar resultados revelados de cinco ciclos oficiales, se evaluó un
+candidato híbrido que promedia los lags diario y semanal. En esos targets pasó
+de 79,85 % para el semanal a 82,41 %, y también superó al semanal en la mayoría
+de los días del backtesting reciente. La versión promovida siguiente es
+`hybrid_lag_96_672:3.0.0`; si uno de los dos lags falta, usa el disponible.
+
 ## Ejecución local controlada
 
 ```bash

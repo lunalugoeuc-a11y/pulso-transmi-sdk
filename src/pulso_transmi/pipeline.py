@@ -90,6 +90,42 @@ def seasonal_naive_predictions(
     return predictions
 
 
+def hybrid_seasonal_predictions(
+    history: list[dict[str, Any]], cycle: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Blend the daily and weekly seasonal values with equal weight."""
+    cutoff = _timestamp(cycle["data_cutoff"])
+    by_station: dict[str, dict[datetime, float]] = {}
+    latest: dict[str, float] = {}
+    for row in sorted(history, key=lambda item: _timestamp(item["observed_at"])):
+        observed_at = _timestamp(row["observed_at"])
+        demand = float(row["demand"])
+        if observed_at <= cutoff and math.isfinite(demand) and demand >= 0:
+            station_id = row["station_id"]
+            by_station.setdefault(station_id, {})[observed_at] = demand
+            latest[station_id] = demand
+
+    predictions = []
+    for target in cycle["targets"]:
+        station_id = target["station_id"]
+        target_at = _timestamp(target["target_at"])
+        values = by_station.get(station_id, {})
+        daily = values.get(target_at - timedelta(days=1))
+        weekly = values.get(target_at - timedelta(days=7))
+        available = [value for value in (daily, weekly) if value is not None]
+        value = sum(available) / len(available) if available else latest.get(station_id)
+        if value is None:
+            raise RuntimeError(f"not enough history for station {station_id}")
+        predictions.append(
+            {
+                "station_id": station_id,
+                "target_at": target["target_at"],
+                "value": round(min(100_000.0, max(0.0, value)), 3),
+            }
+        )
+    return predictions
+
+
 def validate_exact_targets(
     predictions: list[dict[str, Any]], cycle: dict[str, Any]
 ) -> None:
@@ -183,7 +219,9 @@ def run_pipeline(
 
         stage = "model"
         model = store.active_model()
-        lag_days = _seasonal_lag_days(model)
+        algorithm = model["algorithm"].lower()
+        is_hybrid = "hybrid" in algorithm and "lag 96" in algorithm and "lag 672" in algorithm
+        lag_days = 7 if is_hybrid else _seasonal_lag_days(model)
         if store.accepted_receipt_exists(cycle["cycle_id"], model["model_id"]):
             store.finish_run(run_id, "succeeded")
             print(f"cycle: {cycle['cycle_id']} already submitted")
@@ -194,7 +232,11 @@ def run_pipeline(
         history = store.history(
             station_ids, cycle["data_cutoff"], points=lag_days * 96 + 96
         )
-        predictions = seasonal_naive_predictions(history, cycle, lag_days=lag_days)
+        predictions = (
+            hybrid_seasonal_predictions(history, cycle)
+            if is_hybrid
+            else seasonal_naive_predictions(history, cycle, lag_days=lag_days)
+        )
         validate_exact_targets(predictions, cycle)
         payload, client_run_id, idempotency_key, payload_hash = build_payload(
             cycle, model, predictions, commit_sha
