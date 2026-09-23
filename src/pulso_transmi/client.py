@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
+import time
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -14,6 +16,19 @@ DEFAULT_BASE_URL = "https://pulso-transmi.72-60-245-2.sslip.io"
 
 class PulsoTransmiError(RuntimeError):
     """Raised when the Pulso TransMi API cannot fulfill a request."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        code: str | None = None,
+        request_id: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.code = code
+        self.request_id = request_id
 
 
 class PulsoTransmiClient:
@@ -53,6 +68,22 @@ class PulsoTransmiClient:
             return response
         except httpx.HTTPError as exc:
             raise PulsoTransmiError(f"GET {path} failed: {exc}") from exc
+
+    @staticmethod
+    def _api_error(response: httpx.Response, operation: str) -> PulsoTransmiError:
+        try:
+            detail = response.json().get("detail", {})
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            detail = {}
+        code = detail.get("code") if isinstance(detail, dict) else None
+        message = detail.get("message") if isinstance(detail, dict) else None
+        request_id = response.headers.get("X-Request-ID")
+        return PulsoTransmiError(
+            message or f"{operation} failed with HTTP {response.status_code}",
+            status_code=response.status_code,
+            code=code,
+            request_id=request_id,
+        )
 
     def meta(self) -> dict[str, Any]:
         return self._get("/v1/meta").json()
@@ -139,6 +170,65 @@ class PulsoTransmiClient:
         if not frame.empty:
             frame["observed_at"] = pd.to_datetime(frame["observed_at"], utc=True)
         return frame
+
+    def stream_observations_page(
+        self, *, cursor: str | None = None, limit: int = 5000
+    ) -> dict[str, Any]:
+        """Return one competition stream page without interpreting its cursor."""
+        response = self._client.get(
+            "/v1/stream/observations",
+            params={key: value for key, value in {"cursor": cursor, "limit": limit}.items() if value is not None},
+        )
+        if response.is_error:
+            raise self._api_error(response, "stream observations")
+        return response.json()
+
+    def current_cycle(self) -> dict[str, Any] | None:
+        """Return the open cycle, or ``None`` for the expected no-cycle response."""
+        response = self._client.get("/v1/forecast-cycles/current")
+        if response.status_code == 404:
+            error = self._api_error(response, "current cycle")
+            if error.code == "no_open_cycle":
+                return None
+            raise error
+        if response.is_error:
+            raise self._api_error(response, "current cycle")
+        return response.json()
+
+    def identity(self) -> dict[str, Any]:
+        response = self._client.get("/v1/me")
+        if response.is_error:
+            raise self._api_error(response, "participant identity")
+        return response.json()
+
+    def submit(
+        self,
+        payload: dict[str, Any],
+        *,
+        idempotency_key: str,
+        attempts: int = 4,
+    ) -> dict[str, Any]:
+        """Submit with bounded backoff while preserving the idempotency key."""
+        for attempt in range(attempts):
+            try:
+                response = self._client.post(
+                    "/v1/submissions",
+                    headers={"Idempotency-Key": idempotency_key},
+                    json=payload,
+                )
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                if attempt + 1 == attempts:
+                    raise PulsoTransmiError("submission transport failed") from exc
+                time.sleep(2**attempt)
+                continue
+            if response.status_code in {200, 201}:
+                return response.json()
+            if response.status_code == 429 or response.status_code >= 500:
+                if attempt + 1 < attempts:
+                    time.sleep(2**attempt)
+                    continue
+            raise self._api_error(response, "submission")
+        raise PulsoTransmiError("submission attempts exhausted")
 
     def download(self, filename: str, destination: str | Path) -> Path:
         allowed = {"stations.csv", "observations.csv", "context.csv", "metadata.json"}

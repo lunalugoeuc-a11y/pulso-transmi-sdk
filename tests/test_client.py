@@ -32,6 +32,17 @@ def handler(request: httpx.Request) -> httpx.Response:
         })
     if request.url.path == "/v1/downloads/stations.csv":
         return httpx.Response(200, content=b"station_id,name\n03000,Portal Suba\n")
+    if request.url.path == "/v1/stream/observations":
+        return httpx.Response(200, json={"data": [], "count": 0, "next_cursor": None})
+    if request.url.path == "/v1/forecast-cycles/current":
+        return httpx.Response(
+            404,
+            headers={"X-Request-ID": "req-no-cycle"},
+            json={"detail": {"code": "no_open_cycle", "message": "none"}},
+        )
+    if request.url.path == "/v1/submissions" and request.method == "POST":
+        assert request.headers["Idempotency-Key"] == "stable-key"
+        return httpx.Response(201, json={"submission_id": "sub_test", "status": "accepted"})
     return httpx.Response(404, json={"detail": "not found"})
 
 
@@ -55,3 +66,14 @@ def test_download_verifies_checksum(tmp_path) -> None:
     with client() as api:
         path = api.download("stations.csv", tmp_path / "stations.csv")
     assert path.read_text() == "station_id,name\n03000,Portal Suba\n"
+
+
+def test_no_open_cycle_is_a_successful_empty_result() -> None:
+    with client() as api:
+        assert api.current_cycle() is None
+
+
+def test_submission_sends_stable_idempotency_key() -> None:
+    with client() as api:
+        receipt = api.submit({"schema_version": "1.0"}, idempotency_key="stable-key")
+    assert receipt["submission_id"] == "sub_test"
