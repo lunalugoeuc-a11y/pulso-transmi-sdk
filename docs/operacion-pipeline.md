@@ -1,5 +1,9 @@
 # Operación automática del pipeline
 
+El champion vigente se documenta en
+[`modelo-extra-trees-v4.md`](modelo-extra-trees-v4.md). Se reentrena en cada
+ciclo únicamente con observaciones cuyo timestamp no supera el `data_cutoff`.
+
 ## Implementación disponible
 
 El módulo `pulso_transmi.pipeline` implementa el loop operativo del contrato
@@ -17,7 +21,7 @@ Pulso TransMi `1.0`:
 9. envía el batch con una `Idempotency-Key` derivada del payload canónico;
 10. guarda el recibo, el hash, el commit y la relación con las predicciones.
 
-El pipeline admite baselines estacionales diarios (`lag 96`) y semanales
+El pipeline admite Extra Trees y baselines estacionales diarios (`lag 96`) y semanales
 (`lag 672`). En una validación temporal sobre los últimos siete días de las
 51.840 observaciones iniciales, el baseline diario obtuvo 77,89 % de accuracy
 promedio por estación y el semanal obtuvo 83,11 %. Por ello, el candidato

@@ -18,6 +18,8 @@ pipeline que sincroniza datos, descubre ciclos y envía predicciones trazables.
   y orden de carga.
 - [Operación del pipeline](docs/operacion-pipeline.md): loop, secretos,
   guardrails, automatización y verificación.
+- [Modelo Extra Trees 4.0.0](docs/modelo-extra-trees-v4.md): variables,
+  validación temporal y criterio de promoción sobre 85 %.
 
 > **Disponible públicamente:** la API de lectura está en
 > `https://pulso-transmi.72-60-245-2.sslip.io` y su documentación interactiva en
