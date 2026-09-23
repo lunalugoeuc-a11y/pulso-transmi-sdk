@@ -2,8 +2,7 @@
 
 Starter kit oficial del reto MLOps **Pulso TransMi**. Incluye un cliente Python,
 ejemplos reproducibles y una plantilla de GitHub Actions para construir un
-pipeline que descargue datos, entrene, monitoree y posteriormente envíe
-predicciones.
+pipeline que sincroniza datos, descubre ciclos y envía predicciones trazables.
 
 ## Documentación
 
@@ -17,6 +16,8 @@ predicciones.
 - [Guía del EDA](eda%20proyecto/README.md): ejecución y contenido del notebook.
 - [Proyecto Supabase](docs/supabase.md): instancia, esquema desplegado, seguridad
   y orden de carga.
+- [Operación del pipeline](docs/operacion-pipeline.md): loop, secretos,
+  guardrails, automatización y verificación.
 
 > **Disponible públicamente:** la API de lectura está en
 > `https://pulso-transmi.72-60-245-2.sslip.io` y su documentación interactiva en
@@ -84,7 +85,7 @@ Para evaluación local, usa una división temporal: por ejemplo, primeros 38 dí
 para entrenamiento y últimos 7 para validación. Una partición aleatoria mezcla
 futuro y pasado y genera métricas engañosas.
 
-## API de lectura `0.2.0`
+## API y competencia
 
 | Método | Ruta | Uso |
 |---|---|---|
@@ -94,6 +95,9 @@ futuro y pasado y genera métricas engañosas.
 | `GET` | `/v1/observations` | Demanda paginada |
 | `GET` | `/v1/context` | Clima y eventos |
 | `GET` | `/v1/downloads/{filename}` | Descarga completa |
+| `GET` | `/v1/stream/observations` | Observaciones incrementales |
+| `GET` | `/v1/forecast-cycles/current` | Ciclo y targets exactos |
+| `POST` | `/v1/submissions` | Batch atómico e idempotente |
 
 Swagger está disponible en `/docs`. Consulta [docs/api.md](docs/api.md) para
 filtros, paginación y errores.
@@ -125,18 +129,17 @@ El repositorio de cada equipo debe dejar trazabilidad de:
 
 ## GitHub Actions
 
-[`templates/pipeline.yml`](templates/pipeline.yml) es una plantilla manual. Cópiala
-a `.github/workflows/pipeline.yml` dentro del repositorio de tu equipo. Cuando se
-habilite la competencia, agrega el API key como secret y luego activa el horario
-indicado por el profesor.
+El workflow [`.github/workflows/predict.yml`](.github/workflows/predict.yml)
+consulta la API cada 10 minutos. El cron únicamente despierta el proceso: la API
+decide si existe un ciclo abierto. Configura `PULSO_API_KEY`, `SUPABASE_URL` y
+`SUPABASE_SERVICE_KEY` como GitHub Actions Secrets.
 
 Nunca escribas API keys, contraseñas de Supabase ni tokens dentro del código.
 
 ## Supabase y Vercel
 
-Supabase es opcional para persistir ejecuciones, métricas, predicciones y estado
-del modelo. Vercel es opcional y corresponde al bono de visualización. Ninguna de
-las dos plataformas reemplaza el repositorio ni GitHub Actions.
+Supabase conserva ejecuciones, cursores, modelos, predicciones y recibos. Vercel
+continúa siendo opcional y corresponde al bono de visualización.
 
 Consulta [docs/student-project.md](docs/student-project.md) para el flujo completo
 y los entregables.
@@ -150,8 +153,9 @@ WAPE = sum(abs(real - predicción)) / sum(real)
 Accuracy = 100 × max(0, 1 - WAPE)
 ```
 
-La métrica se calcula por estación y luego se promedia. El contrato definitivo
-de submissions y leaderboard se publicará antes de iniciar la ventana competitiva.
+La métrica se calcula por estación y luego se promedia. El contrato vigente de
+submissions usa `schema_version: "1.0"`; siempre prevalece la respuesta del ciclo
+actual y la documentación del repositorio central.
 
 ## Desarrollo del SDK
 

@@ -222,7 +222,9 @@ class PulsoTransmiClient:
                 time.sleep(2**attempt)
                 continue
             if response.status_code in {200, 201}:
-                return response.json()
+                receipt = response.json()
+                receipt["request_id"] = response.headers.get("X-Request-ID")
+                return receipt
             if response.status_code == 429 or response.status_code >= 500:
                 if attempt + 1 < attempts:
                     time.sleep(2**attempt)

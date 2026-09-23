@@ -1,4 +1,4 @@
-# API de lectura
+# API de lectura y competencia
 
 La URL base pública es:
 
@@ -53,3 +53,20 @@ El SDK verifica automáticamente el SHA-256 declarado en `/v1/meta`.
 | 422 | Parámetro inválido |
 | 429 | Demasiadas solicitudes; espera antes de reintentar |
 | 5xx | Falla temporal del servidor |
+
+## Loop competitivo
+
+`GET /v1/stream/observations` publica datos incrementales. El cursor es opaco y
+solo se confirma después de guardar la página. `GET
+/v1/forecast-cycles/current` devuelve el contrato exacto; un `404` con código
+`no_open_cycle` es un resultado normal.
+
+`POST /v1/submissions` requiere `Authorization: Bearer $PULSO_API_KEY` e
+`Idempotency-Key`. El payload `1.0` contiene `cycle_id`, `client_run_id`,
+`data_cutoff`, metadata del modelo y la lista completa de predicciones. El SDK
+valida localmente que las parejas `station_id + target_at` coincidan exactamente
+con los targets del ciclo.
+
+El servidor devuelve `201` para una entrega nueva y `200` al repetir el mismo
+contenido con la misma llave. Un `409 idempotency_conflict` indica que la llave
+se reutilizó con contenido diferente.

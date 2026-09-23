@@ -1,0 +1,79 @@
+# Operación automática del pipeline
+
+## Implementación disponible
+
+El módulo `pulso_transmi.pipeline` implementa el loop operativo del contrato
+Pulso TransMi `1.0`:
+
+1. crea una ejecución trazable en `pipeline_runs`;
+2. lee el cursor confirmado y sincroniza `/v1/stream/observations`;
+3. persiste cada página y su cursor en una transacción de PostgreSQL;
+4. consulta `/v1/forecast-cycles/current` y termina en verde ante
+   `404 no_open_cycle`;
+5. evita un nuevo POST si ya existe un recibo aceptado para ciclo y champion;
+6. carga el modelo promovido en Supabase;
+7. genera y valida exactamente los targets publicados por la API;
+8. conserva las predicciones antes del envío;
+9. envía el batch con una `Idempotency-Key` derivada del payload canónico;
+10. guarda el recibo, el hash, el commit y la relación con las predicciones.
+
+El modelo promovido actual es `baseline_lag_96:1.0.0`: para cada target usa la
+demanda de la misma estación 24 horas antes. Si ese instante falta, usa el último
+valor conocido hasta `data_cutoff`. Este fallback mantiene la operación, pero
+debe quedar visible al comparar el baseline con candidatos posteriores.
+
+## Ejecución local controlada
+
+```bash
+export PULSO_API_KEY='...'
+export SUPABASE_URL='https://bxokvetjqputudvuentu.supabase.co'
+export SUPABASE_SERVICE_KEY='...'
+python -m pulso_transmi.pipeline
+```
+
+No ejecutes este comando con credenciales copiadas en el historial de una
+terminal compartida. Un `404 no_open_cycle` imprime el estado y devuelve código
+cero.
+
+## GitHub Actions
+
+El workflow [`.github/workflows/predict.yml`](../.github/workflows/predict.yml)
+despierta cada 10 minutos y también admite ejecución manual. Usa `concurrency`
+para no solapar dos ejecuciones y un timeout de ocho minutos.
+
+Configura estos valores en **Settings → Secrets and variables → Actions**:
+
+| Nombre | Tipo | Estado |
+|---|---|---|
+| `PULSO_API_URL` | Variable | Configurada |
+| `SUPABASE_URL` | Secret | Configurado |
+| `PULSO_API_KEY` | Secret | Pendiente de la credencial personal |
+| `SUPABASE_SERVICE_KEY` | Secret | Pendiente de la clave backend |
+
+No uses la clave `anon` para el pipeline y no expongas `SUPABASE_SERVICE_KEY` en
+el navegador. Las claves nuevas `sb_secret_*` se envían a Supabase únicamente en
+el encabezado `apikey`; las claves antiguas JWT también requieren
+`Authorization: Bearer`.
+
+## Guardrails
+
+- El ciclo, corte, deadline y targets siempre vienen de la API.
+- `training_data_end` debe ser menor o igual que `data_cutoff`.
+- El conjunto de parejas estación/instante debe coincidir exactamente.
+- No se aceptan duplicados, `NaN`, infinitos, negativos ni valores mayores a
+  100.000.
+- El payload se rechaza localmente si supera 64 KB.
+- Los reintentos por timeout, `429` o `5xx` conservan la misma llave.
+- `401`, `409` y `422` no se reintentan a ciegas.
+- Los logs muestran cantidades e identificadores, nunca claves ni el payload
+  completo.
+
+## Verificación
+
+La suite cubre el caso sin ciclo, coincidencia exacta de targets, rechazo de
+duplicados, encabezados seguros de Supabase, RPC atómico y envío idempotente.
+La consulta de solo lectura contra la API en vivo confirmó que el stream está
+publicando datos y que la ausencia temporal de ciclo se interpreta normalmente.
+
+La entrega real queda pendiente hasta configurar los dos secretos privados. No
+se fabrican credenciales ni se realiza un POST sin autorización.

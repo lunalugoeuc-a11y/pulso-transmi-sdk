@@ -276,8 +276,8 @@ El job tiene permisos de contenido de solo lectura y un timeout de 15 minutos.
 | Esquema Supabase MLOps | Implementado | Conectar el pipeline a las tablas operativas. |
 | Registro de experimentos/modelos | No implementado | Definir artefactos, versiones y persistencia. |
 | Monitoreo y drift | No implementado | Definir señales, umbrales y ventanas. |
-| Persistencia de ciclos/submissions | Implementada | Implementar cliente y envío automático. |
-| CI programado | Plantilla | Adaptar rutas, dependencias y horario. |
+| Pipeline de ciclos/submissions | Implementado | Configurar secretos y obtener primer recibo real. |
+| CI programado | Implementado | Verificar la primera ejecución con secretos. |
 | Dashboard | Opcional, no implementado | Diseñar solo si se aborda el bono. |
 
 El diagrama conceptual de los archivos públicos continúa siendo la vista más
