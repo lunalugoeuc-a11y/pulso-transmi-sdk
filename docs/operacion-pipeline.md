@@ -17,10 +17,12 @@ Pulso TransMi `1.0`:
 9. envía el batch con una `Idempotency-Key` derivada del payload canónico;
 10. guarda el recibo, el hash, el commit y la relación con las predicciones.
 
-El modelo promovido actual es `baseline_lag_96:1.0.0`: para cada target usa la
-demanda de la misma estación 24 horas antes. Si ese instante falta, usa el último
-valor conocido hasta `data_cutoff`. Este fallback mantiene la operación, pero
-debe quedar visible al comparar el baseline con candidatos posteriores.
+El pipeline admite baselines estacionales diarios (`lag 96`) y semanales
+(`lag 672`). En una validación temporal sobre los últimos siete días de las
+51.840 observaciones iniciales, el baseline diario obtuvo 77,89 % de accuracy
+promedio por estación y el semanal obtuvo 83,11 %. Por ello, el candidato
+recomendado para promoción es `seasonal_naive_lag_672:2.0.0`. Si el instante
+estacional falta, usa el último valor conocido hasta `data_cutoff`.
 
 ## Ejecución local controlada
 

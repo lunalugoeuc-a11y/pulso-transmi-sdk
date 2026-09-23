@@ -54,9 +54,11 @@ def sync_stream(
 
 
 def seasonal_naive_predictions(
-    history: list[dict[str, Any]], cycle: dict[str, Any]
+    history: list[dict[str, Any]], cycle: dict[str, Any], *, lag_days: int = 1
 ) -> list[dict[str, Any]]:
-    """Predict each target from the same station exactly 24 hours earlier."""
+    """Predict each target from the same station at a prior daily/weekly season."""
+    if lag_days < 1:
+        raise ValueError("lag_days must be positive")
     cutoff = _timestamp(cycle["data_cutoff"])
     by_station: dict[str, list[tuple[datetime, float]]] = {}
     for row in history:
@@ -73,7 +75,7 @@ def seasonal_naive_predictions(
         target_at = _timestamp(target["target_at"])
         values = by_station.get(station_id, [])
         exact = {observed_at: demand for observed_at, demand in values}
-        value = exact.get(target_at - timedelta(days=1))
+        value = exact.get(target_at - timedelta(days=lag_days))
         if value is None and values:
             value = values[-1][1]
         if value is None:
@@ -118,6 +120,15 @@ def _training_end(model: dict[str, Any]) -> str:
     if isinstance(training, list):
         training = training[0]
     return training["train_end"]
+
+
+def _seasonal_lag_days(model: dict[str, Any]) -> int:
+    algorithm = model["algorithm"].lower()
+    if "lag 672" in algorithm or "weekly" in algorithm:
+        return 7
+    if "lag 96" in algorithm or "daily" in algorithm:
+        return 1
+    raise RuntimeError(f"unsupported promoted algorithm: {model['algorithm']}")
 
 
 def build_payload(
@@ -172,8 +183,7 @@ def run_pipeline(
 
         stage = "model"
         model = store.active_model()
-        if "seasonal naive" not in model["algorithm"].lower():
-            raise RuntimeError(f"unsupported promoted algorithm: {model['algorithm']}")
+        lag_days = _seasonal_lag_days(model)
         if store.accepted_receipt_exists(cycle["cycle_id"], model["model_id"]):
             store.finish_run(run_id, "succeeded")
             print(f"cycle: {cycle['cycle_id']} already submitted")
@@ -181,8 +191,10 @@ def run_pipeline(
 
         stage = "inference"
         station_ids = sorted({target["station_id"] for target in cycle["targets"]})
-        history = store.history(station_ids, cycle["data_cutoff"])
-        predictions = seasonal_naive_predictions(history, cycle)
+        history = store.history(
+            station_ids, cycle["data_cutoff"], points=lag_days * 96 + 96
+        )
+        predictions = seasonal_naive_predictions(history, cycle, lag_days=lag_days)
         validate_exact_targets(predictions, cycle)
         payload, client_run_id, idempotency_key, payload_hash = build_payload(
             cycle, model, predictions, commit_sha

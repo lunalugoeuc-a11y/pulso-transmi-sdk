@@ -5,7 +5,11 @@ from typing import Any
 
 import pytest
 
-from pulso_transmi.pipeline import run_pipeline, validate_exact_targets
+from pulso_transmi.pipeline import (
+    run_pipeline,
+    seasonal_naive_predictions,
+    validate_exact_targets,
+)
 
 
 def cycle() -> dict[str, Any]:
@@ -149,3 +153,20 @@ def test_exact_target_validation_rejects_duplicates() -> None:
     }
     with pytest.raises(ValueError, match="duplicate"):
         validate_exact_targets([prediction, prediction], current)
+
+
+def test_weekly_seasonal_predictions_use_seven_day_lag() -> None:
+    current = cycle()
+    history = [
+        {
+            "station_id": target["station_id"],
+            "observed_at": (
+                datetime.fromisoformat(target["target_at"]) - timedelta(days=7)
+            ).isoformat(),
+            "demand": 321,
+        }
+        for target in current["targets"]
+    ]
+    predictions = seasonal_naive_predictions(history, current, lag_days=7)
+    assert len(predictions) == current["expected_predictions"]
+    assert {prediction["value"] for prediction in predictions} == {321}
