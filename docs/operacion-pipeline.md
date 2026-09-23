@@ -40,8 +40,9 @@ cero.
 ## GitHub Actions
 
 El workflow [`.github/workflows/predict.yml`](../.github/workflows/predict.yml)
-despierta cada 10 minutos y también admite ejecución manual. Usa `concurrency`
-para no solapar dos ejecuciones y un timeout de ocho minutos.
+despierta cada 10 minutos, en los minutos 03, 13, 23, 33, 43 y 53 para evitar
+la congestión del inicio de la hora, y también admite ejecución manual. Usa
+`concurrency` para no solapar dos ejecuciones y un timeout de ocho minutos.
 
 Configura estos valores en **Settings → Secrets and variables → Actions**:
 
