@@ -15,11 +15,13 @@ El repositorio sí contiene:
 - un baseline diario y un EDA ejecutado;
 - pruebas unitarias del cliente;
 - una plantilla inicial de GitHub Actions;
-- un modelo entidad–relación lógico de los datos publicados.
+- un modelo entidad–relación lógico y un esquema Supabase de 18 tablas;
+- persistencia para ciclos, predicciones, submissions y recibos idempotentes.
 
-El repositorio todavía no contiene un pipeline completo de entrenamiento,
-monitoreo, reentrenamiento o envío de predicciones. La plantilla de CI supone
-que el equipo implementará `src.pipeline` y su archivo de dependencias.
+El repositorio todavía no contiene la implementación ejecutable del pipeline de
+entrenamiento, monitoreo, reentrenamiento o envío. La capa de persistencia ya
+está desplegada y versionada; la plantilla de CI aún requiere `src.pipeline` y
+sus dependencias.
 
 ## 2. Inventario del repositorio
 
@@ -46,7 +48,10 @@ pulso-transmi-sdk/
 │   ├── student-project.md          # Etapas y entregables del reto
 │   ├── supabase.md                 # Proyecto, seguridad y carga en Supabase
 │   └── documentacion-tecnica.md    # Este documento
-├── supabase/schema.sql             # Copia reproducible del esquema desplegado
+├── supabase/
+│   ├── config.toml                 # Configuración local de Supabase CLI
+│   ├── schema.sql                  # Fotografía de las 18 tablas desplegadas
+│   └── migrations/                 # Cambios incrementales versionados
 ├── templates/pipeline.yml          # Base de GitHub Actions
 ├── .env.example                    # Variables de entorno disponibles
 ├── .gitignore                      # Archivos locales excluidos
@@ -70,7 +75,8 @@ flowchart LR
     DATA --> BASE[Baseline diario]
     DATA --> FUTURO[Pipeline del equipo por implementar]
     FUTURO --> TESTS[Validación y monitoreo]
-    FUTURO --> SUB[Predicciones / submission pendiente]
+    FUTURO --> SUB[Predicciones y submissions]
+    FUTURO --> DB[(Supabase: linaje y recibos)]
     GHA[GitHub Actions] -.orquesta.-> FUTURO
 ```
 
@@ -108,9 +114,9 @@ Variables admitidas:
 | `PULSO_API_URL` | No | Reemplaza la URL pública por defecto. |
 | `PULSO_API_KEY` | No para lectura | Se envía como `Authorization: Bearer ...`. |
 
-La plantilla de GitHub Actions también referencia `SUPABASE_URL` y
-`SUPABASE_KEY`, pero el SDK actual no usa Supabase. Esas variables quedan
-reservadas para la implementación del equipo.
+La plantilla de GitHub Actions referencia `SUPABASE_URL` y `SUPABASE_KEY`. La
+base ya está preparada para el pipeline, pero el SDK de lectura no la consulta;
+esas variables corresponden al proceso backend que se implemente.
 
 ## 5. Componentes del SDK
 
@@ -267,16 +273,17 @@ El job tiene permisos de contenido de solo lectura y un timeout de 15 minutos.
 | Modelo ER de datos publicados | Implementado | Extenderlo al definir operación MLOps. |
 | Baseline diario | Implementado | Comparar con baseline semanal y modelos. |
 | Features/entrenamiento | No implementado | Crear módulos reproducibles sin leakage. |
-| Esquema Supabase base | Implementado | Cargar el corte y definir tablas operativas. |
+| Esquema Supabase MLOps | Implementado | Conectar el pipeline a las tablas operativas. |
 | Registro de experimentos/modelos | No implementado | Definir artefactos, versiones y persistencia. |
 | Monitoreo y drift | No implementado | Definir señales, umbrales y ventanas. |
-| Predicción/submission | Contrato pendiente | Implementar cuando se publique el contrato. |
+| Persistencia de ciclos/submissions | Implementada | Implementar cliente y envío automático. |
 | CI programado | Plantilla | Adaptar rutas, dependencias y horario. |
 | Dashboard | Opcional, no implementado | Diseñar solo si se aborda el bono. |
 
-Al ampliar el sistema, el modelo ER debería incorporar al menos `DATASET_CUT`,
-`PIPELINE_RUN`, `MODEL_VERSION`, `METRIC` y `PREDICTION`. No se añaden al
-diagrama actual porque su contrato y persistencia todavía no están definidos.
+El diagrama conceptual de los archivos públicos continúa siendo la vista más
+simple para el EDA. El esquema físico de Supabase ya amplía esa vista con
+`DATA_BATCH`, `PIPELINE_RUN`, `MODEL`, `METRIC`, `FORECAST_CYCLE`, `PREDICTION`
+y `SUBMISSION`; su inventario y operación están en [`supabase.md`](supabase.md).
 
 ## 14. Limitaciones conocidas
 
@@ -286,7 +293,9 @@ diagrama actual porque su contrato y persistencia todavía no están definidos.
 - Los campos meteorológicos de pronóstico no incluyen emisión ni horizonte.
 - Faltan festivos, cierres, capacidad y frecuencia operacional.
 - El corte inicial de 45 días no permite estudiar estacionalidad anual.
-- El contrato de cuatro horizontes y submissions continúa pendiente.
+- El contrato competitivo puede evolucionar; por eso cada ciclo conserva su
+  respuesta completa en `forecast_cycles.contract_json` en vez de asumir una
+  lista fija de horizontes.
 - La versión del paquete es `0.1.0`, mientras el README identifica el contrato
   de lectura como `0.2.0`; son versiones de componentes distintos y conviene
   mantener esa distinción explícita.
