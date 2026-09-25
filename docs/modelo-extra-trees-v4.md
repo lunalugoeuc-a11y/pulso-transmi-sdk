@@ -38,9 +38,10 @@ disponibles en Supabase hasta el corte y genera exactamente los targets del
 ciclo vigente.
 
 Si el stream incremental todavía no ha acumulado los catorce días necesarios
-para `lag_1344`, el pipeline completa el historial desde el endpoint paginado
-oficial de observaciones, siempre limitado por `data_cutoff`. Así se evita
-degradar al modelo anterior o usar información futura.
+para `lag_1344`, el pipeline fusiona los datos recientes de Supabase con el
+historial del endpoint paginado oficial, siempre limitado por `data_cutoff` y
+deduplicado por estación/instante. Así se evita degradar al modelo anterior o
+usar información futura.
 
 ## Criterio de promoción
 

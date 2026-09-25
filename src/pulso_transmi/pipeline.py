@@ -363,7 +363,7 @@ def run_pipeline(
                 if "not enough complete history" not in str(exc):
                     raise
                 historical = api.observations_dataframe(end=cycle["data_cutoff"])
-                history = historical.to_dict(orient="records")
+                history = [*historical.to_dict(orient="records"), *history]
                 predictions = extra_trees_predictions(history, cycle)
         elif is_hybrid:
             predictions = hybrid_seasonal_predictions(history, cycle)
