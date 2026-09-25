@@ -2,8 +2,9 @@ name: pulso-transmi-predict
 
 on:
   schedule:
-    # Offset from the top of the hour to reduce GitHub Actions schedule delays.
-    - cron: "3,13,23,33,43,53 * * * *"
+    # GitHub uses UTC. The API is authoritative: :45 is the primary check and
+    # :55 is the retry when the cycle has not opened yet.
+    - cron: "45,55 * * * *"
   workflow_dispatch:
 
 concurrency:
