@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 8
     permissions:
       contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,3 +34,27 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python -m pulso_transmi.pipeline
+
+      - name: Notify Luna when automatic submission fails
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALERT_TITLE: "[ALERTA] Pulso TransMi: envio automatico detenido"
+        run: |
+          existing_issue="$(gh issue list --state open --search "${ALERT_TITLE} in:title" --json number --jq '.[0].number // empty')"
+          if [ -z "${existing_issue}" ]; then
+            gh issue create \
+              --title "${ALERT_TITLE}" \
+              --assignee "${GITHUB_REPOSITORY_OWNER}" \
+              --body "@${GITHUB_REPOSITORY_OWNER}: el pipeline no pudo completar el ciclo automaticamente. Ejecutalo manualmente cuanto antes desde ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. No publiques claves ni secretos en esta incidencia."
+          fi
+
+      - name: Close the alert after recovery
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALERT_TITLE: "[ALERTA] Pulso TransMi: envio automatico detenido"
+        run: |
+          gh issue list --state open --search "${ALERT_TITLE} in:title" --json number --jq '.[].number' | while read -r issue_number; do
+            [ -z "${issue_number}" ] || gh issue close "${issue_number}" --comment "El pipeline volvio a ejecutarse correctamente en ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}."
+          done
