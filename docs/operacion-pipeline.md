@@ -59,14 +59,24 @@ El workflow [`.github/workflows/predict.yml`](../.github/workflows/predict.yml)
 despierta cada cinco minutos y también admite ejecución manual. Usa
 `concurrency` para no solapar dos ejecuciones y un timeout de ocho minutos.
 
+Como respaldo ante retrasos u omisiones del scheduler nativo de GitHub,
+Supabase ejecuta cada cinco minutos el job
+`pulso-transmi-github-dispatch`. El job usa `pg_cron` y `pg_net` para invocar
+`workflow_dispatch`; la credencial vive cifrada en Vault con el nombre
+`github_actions_dispatch_token`. El token está limitado al repositorio
+`lunalugoeuc-a11y/pulso-transmi-sdk` y al permiso `Actions: read/write`.
+La API sigue decidiendo si existe un ciclo y la idempotencia evita envíos
+duplicados. El token vigente expira el 25 de octubre de 2026 y debe rotarse en
+Vault antes de esa fecha.
+
 Configura estos valores en **Settings → Secrets and variables → Actions**:
 
 | Nombre | Tipo | Estado |
 |---|---|---|
 | `PULSO_API_URL` | Variable | Configurada |
 | `SUPABASE_URL` | Secret | Configurado |
-| `PULSO_API_KEY` | Secret | Pendiente de la credencial personal |
-| `SUPABASE_SERVICE_KEY` | Secret | Pendiente de la clave backend |
+| `PULSO_API_KEY` | Secret | Configurado |
+| `SUPABASE_SERVICE_KEY` | Secret | Configurado |
 
 No uses la clave `anon` para el pipeline y no expongas `SUPABASE_SERVICE_KEY` en
 el navegador. Las claves nuevas `sb_secret_*` se envían a Supabase únicamente en
@@ -93,5 +103,7 @@ duplicados, encabezados seguros de Supabase, RPC atómico y envío idempotente.
 La consulta de solo lectura contra la API en vivo confirmó que el stream está
 publicando datos y que la ausencia temporal de ciclo se interpreta normalmente.
 
-La entrega real queda pendiente hasta configurar los dos secretos privados. No
-se fabrican credenciales ni se realiza un POST sin autorización.
+La automatización está operativa tanto por el cron nativo del workflow como por
+el disparador redundante de Supabase. La ejecución de verificación `#84` fue
+aceptada por GitHub y terminó en verde con `collector: 4572 rows processed` y
+`cycle: no_open_cycle`, que es el comportamiento correcto cuando no hay ventana.

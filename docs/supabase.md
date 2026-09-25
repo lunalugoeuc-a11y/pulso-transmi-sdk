@@ -8,7 +8,7 @@
 | Project ref | `bxokvetjqputudvuentu` |
 | Región | `sa-east-1` |
 | URL | `https://bxokvetjqputudvuentu.supabase.co` |
-| Última migración remota | `20260923033307_add_competition_operations` |
+| Última migración remota | `20260925150736_add_github_actions_dispatch_cron` |
 
 El repositorio contiene dos representaciones complementarias:
 
@@ -65,6 +65,20 @@ necesita el pipeline y omite RLS.
 `PULSO_API_KEY` y la clave `service_role` deben vivir únicamente en GitHub
 Actions Secrets o en un gestor de secretos del backend. Nunca deben aparecer en
 el código, commits, logs, frontend ni variables públicas de Vercel.
+
+El token usado para disparar GitHub Actions está cifrado en Supabase Vault bajo
+`github_actions_dispatch_token`; no forma parte de la migración ni del código.
+Solo tiene acceso al repositorio del proyecto y permiso de escritura sobre
+Actions. Debe rotarse antes de su expiración el 25 de octubre de 2026.
+
+## Cron redundante
+
+La migración `20260925150736_add_github_actions_dispatch_cron.sql` habilita
+`pg_cron` y `pg_net` y registra `pulso-transmi-github-dispatch` con frecuencia
+de cinco minutos. Cada ejecución solicita a GitHub el workflow `predict.yml` en
+la rama `main`. GitHub respondió `204` a la prueba de despacho y el workflow
+`#84` concluyó correctamente. Si no existe ciclo abierto, el pipeline termina
+en verde sin enviar predicciones; si ya existe recibo, no duplica el submission.
 
 ## Desarrollo y migraciones
 
