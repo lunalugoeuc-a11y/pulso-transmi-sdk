@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 
 from pulso_transmi.pipeline import (
+    adaptive_profile_predictions,
     extra_trees_predictions,
     hgb_profile_predictions,
     run_pipeline,
@@ -231,3 +232,28 @@ def test_hgb_profile_predictions_respect_target_contract() -> None:
     predictions = hgb_profile_predictions(history, current)
     validate_exact_targets(predictions, current)
     assert len(predictions) == current["expected_predictions"]
+
+
+def test_adaptive_profile_uses_matching_weekday_and_slot() -> None:
+    current = cycle()
+    history = []
+    for target in current["targets"]:
+        target_at = datetime.fromisoformat(target["target_at"])
+        history.extend(
+            [
+                {
+                    "station_id": target["station_id"],
+                    "observed_at": (target_at - timedelta(days=7)).isoformat(),
+                    "demand": 100,
+                },
+                {
+                    "station_id": target["station_id"],
+                    "observed_at": (target_at - timedelta(days=14)).isoformat(),
+                    "demand": 200,
+                },
+            ]
+        )
+    predictions = adaptive_profile_predictions(history, current)
+    validate_exact_targets(predictions, current)
+    assert len(predictions) == current["expected_predictions"]
+    assert all(100 < prediction["value"] < 200 for prediction in predictions)

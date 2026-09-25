@@ -149,6 +149,67 @@ def hybrid_seasonal_predictions(
     return predictions
 
 
+def adaptive_profile_predictions(
+    history: list[dict[str, Any]], cycle: dict[str, Any], *, half_life_days: float = 14.0
+) -> list[dict[str, Any]]:
+    """Exponentially weight prior matching weekday/slot observations."""
+    if half_life_days <= 0:
+        raise ValueError("half_life_days must be positive")
+    cutoff = _timestamp(cycle["data_cutoff"])
+    profiles: dict[tuple[str, int, int], list[tuple[datetime, float]]] = {}
+    slot_profiles: dict[tuple[str, int], list[tuple[datetime, float]]] = {}
+    latest: dict[str, float] = {}
+    for row in sorted(history, key=lambda item: _timestamp(item["observed_at"])):
+        observed_at = _timestamp(row["observed_at"])
+        demand = float(row["demand"])
+        if observed_at > cutoff or not math.isfinite(demand) or demand < 0:
+            continue
+        station_id = str(row["station_id"])
+        local = pd.Timestamp(observed_at).tz_convert("America/Bogota")
+        slot = int(local.hour * 4 + local.minute // 15)
+        profiles.setdefault((station_id, int(local.dayofweek), slot), []).append(
+            (observed_at, demand)
+        )
+        slot_profiles.setdefault((station_id, slot), []).append((observed_at, demand))
+        latest[station_id] = demand
+
+    predictions: list[dict[str, Any]] = []
+    for target in cycle["targets"]:
+        station_id = str(target["station_id"])
+        target_at = _timestamp(target["target_at"])
+        local_target = pd.Timestamp(target_at).tz_convert("America/Bogota")
+        slot = int(local_target.hour * 4 + local_target.minute // 15)
+        values = profiles.get((station_id, int(local_target.dayofweek), slot), [])
+        if not values:
+            values = slot_profiles.get((station_id, slot), [])
+        if values:
+            weights = np.asarray(
+                [
+                    0.5
+                    ** (
+                        max(0.0, (target_at - observed_at).total_seconds() / 86400)
+                        / half_life_days
+                    )
+                    for observed_at, _ in values
+                ]
+            )
+            value = float(
+                np.average(np.asarray([demand for _, demand in values]), weights=weights)
+            )
+        else:
+            value = latest.get(station_id, math.nan)
+        if not math.isfinite(value):
+            raise RuntimeError(f"not enough history for station {station_id}")
+        predictions.append(
+            {
+                "station_id": target["station_id"],
+                "target_at": target["target_at"],
+                "value": round(min(100_000.0, max(0.0, value)), 3),
+            }
+        )
+    return predictions
+
+
 def extra_trees_predictions(
     history: list[dict[str, Any]], cycle: dict[str, Any]
 ) -> list[dict[str, Any]]:
@@ -467,8 +528,9 @@ def run_pipeline(
         algorithm = model["algorithm"].lower()
         is_extra_trees = "extra trees" in algorithm
         is_hgb_profile = "hgb" in algorithm and "profile" in algorithm
+        is_adaptive_profile = "adaptive profile" in algorithm and "hl14" in algorithm
         is_hybrid = "hybrid" in algorithm and "lag 96" in algorithm and "lag 672" in algorithm
-        lag_days = 14 if (is_extra_trees or is_hgb_profile) else (7 if is_hybrid else _seasonal_lag_days(model))
+        lag_days = 45 if is_adaptive_profile else (14 if (is_extra_trees or is_hgb_profile) else (7 if is_hybrid else _seasonal_lag_days(model)))
         if store.accepted_receipt_exists(cycle["cycle_id"], model["model_id"]):
             store.finish_run(run_id, "succeeded")
             print(f"cycle: {cycle['cycle_id']} already submitted")
@@ -479,9 +541,11 @@ def run_pipeline(
         history = store.history(
             station_ids,
             cycle["data_cutoff"],
-            points=5000 if (is_extra_trees or is_hgb_profile) else lag_days * 96 + 96,
+            points=5000 if (is_extra_trees or is_hgb_profile or is_adaptive_profile) else lag_days * 96 + 96,
         )
-        if is_extra_trees or is_hgb_profile:
+        if is_adaptive_profile:
+            predictions = adaptive_profile_predictions(history, cycle)
+        elif is_extra_trees or is_hgb_profile:
             try:
                 predictions = (
                     hgb_profile_predictions(history, cycle)

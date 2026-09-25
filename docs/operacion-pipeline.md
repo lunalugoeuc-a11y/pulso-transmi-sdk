@@ -1,7 +1,7 @@
 # Operación automática del pipeline
 
 El champion vigente se documenta en
-[`modelo-stacked-hgb-profile-v5.md`](modelo-stacked-hgb-profile-v5.md). Se reentrena en cada
+[`modelo-adaptive-profile-v6.md`](modelo-adaptive-profile-v6.md). Se recalcula en cada
 ciclo únicamente con observaciones cuyo timestamp no supera el `data_cutoff`.
 
 ## Implementación disponible
@@ -38,6 +38,10 @@ El candidato 5.0.0 combina Extra Trees, Histogram Gradient Boosting y un perfil
 histórico por estación, día e intervalo. En el mismo backtest alcanzó 87,31 %,
 frente a 87,26 % de Extra Trees 4.0.0. La mejora es pequeña y debe confirmarse
 con resultados oficiales posteriores a la promoción.
+
+Por decisión operativa, el champion 6.0.0 usa un perfil adaptativo por estación,
+día de semana e intervalo, con vida media de 14 días. El 5.0.0 permanece como
+opción de reversión si el desempeño oficial del perfil adaptativo se degrada.
 
 ## Ejecución local controlada
 
