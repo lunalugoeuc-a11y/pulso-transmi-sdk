@@ -351,7 +351,20 @@ def run_pipeline(
             points=5000 if is_extra_trees else lag_days * 96 + 96,
         )
         if is_extra_trees:
-            predictions = extra_trees_predictions(history, cycle)
+            try:
+                predictions = extra_trees_predictions(history, cycle)
+            except RuntimeError as exc:
+                # The competition stream can start with only a few days of
+                # retained observations. Extra Trees needs fourteen complete
+                # days for lag_1344, so recover the public historical window
+                # from the paginated observations endpoint when Supabase does
+                # not yet contain enough history. The endpoint is still
+                # bounded by the official cycle cutoff.
+                if "not enough complete history" not in str(exc):
+                    raise
+                historical = api.observations_dataframe(end=cycle["data_cutoff"])
+                history = historical.to_dict(orient="records")
+                predictions = extra_trees_predictions(history, cycle)
         elif is_hybrid:
             predictions = hybrid_seasonal_predictions(history, cycle)
         else:
