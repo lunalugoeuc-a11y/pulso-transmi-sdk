@@ -50,14 +50,13 @@ cero.
 ## GitHub Actions
 
 El horario vive en GitHub, no en el computador del estudiante. El workflow se
-despierta cada hora a los minutos `:45` y `:55` (cron en UTC), por lo que sigue
-operando aunque el computador personal esté apagado. La primera ejecución es el
-intento principal y la segunda cubre aperturas tardías. La consulta del ciclo y
-la idempotencia impiden duplicar entregas.
+despierta cada cinco minutos (cron en UTC), por lo que sigue operando aunque el
+computador personal esté apagado. Esta frecuencia compensa retrasos u omisiones
+del scheduler y ofrece varios intentos dentro de cada ventana de 25 minutos. La
+consulta del ciclo y la idempotencia impiden duplicar entregas.
 
 El workflow [`.github/workflows/predict.yml`](../.github/workflows/predict.yml)
-despierta en los minutos 45 y 55 de cada hora y también admite ejecución
-manual. Usa
+despierta cada cinco minutos y también admite ejecución manual. Usa
 `concurrency` para no solapar dos ejecuciones y un timeout de ocho minutos.
 
 Configura estos valores en **Settings → Secrets and variables → Actions**:

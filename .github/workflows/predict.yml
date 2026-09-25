@@ -2,9 +2,10 @@ name: pulso-transmi-predict
 
 on:
   schedule:
-    # GitHub uses UTC. The API is authoritative: :45 is the primary check and
-    # :55 is the retry when the cycle has not opened yet.
-    - cron: "45,55 * * * *"
+    # Scheduled runs can be delayed or skipped. Wake at GitHub's minimum
+    # interval so every 25-minute competition window gets several chances.
+    # The API is authoritative and idempotency prevents duplicate submissions.
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 concurrency:
