@@ -1,7 +1,7 @@
 # Operación automática del pipeline
 
 El champion vigente se documenta en
-[`modelo-extra-trees-v4.md`](modelo-extra-trees-v4.md). Se reentrena en cada
+[`modelo-stacked-hgb-profile-v5.md`](modelo-stacked-hgb-profile-v5.md). Se reentrena en cada
 ciclo únicamente con observaciones cuyo timestamp no supera el `data_cutoff`.
 
 ## Implementación disponible
@@ -33,6 +33,11 @@ candidato híbrido que promedia los lags diario y semanal. En esos targets pasó
 de 79,85 % para el semanal a 82,41 %, y también superó al semanal en la mayoría
 de los días del backtesting reciente. La versión promovida siguiente es
 `hybrid_lag_96_672:3.0.0`; si uno de los dos lags falta, usa el disponible.
+
+El candidato 5.0.0 combina Extra Trees, Histogram Gradient Boosting y un perfil
+histórico por estación, día e intervalo. En el mismo backtest alcanzó 87,31 %,
+frente a 87,26 % de Extra Trees 4.0.0. La mejora es pequeña y debe confirmarse
+con resultados oficiales posteriores a la promoción.
 
 ## Ejecución local controlada
 

@@ -7,6 +7,7 @@ import pytest
 
 from pulso_transmi.pipeline import (
     extra_trees_predictions,
+    hgb_profile_predictions,
     run_pipeline,
     hybrid_seasonal_predictions,
     seasonal_naive_predictions,
@@ -211,5 +212,22 @@ def test_extra_trees_predictions_respect_target_contract() -> None:
         for index in range(2977)
     ]
     predictions = extra_trees_predictions(history, current)
+    validate_exact_targets(predictions, current)
+    assert len(predictions) == current["expected_predictions"]
+
+
+def test_hgb_profile_predictions_respect_target_contract() -> None:
+    current = cycle()
+    start = datetime(2098, 12, 1, tzinfo=timezone.utc)
+    history = [
+        {
+            "station_id": station,
+            "observed_at": (start + timedelta(minutes=15 * index)).isoformat(),
+            "demand": 100 + (index % 96),
+        }
+        for station in ("02300", "03000")
+        for index in range(2977)
+    ]
+    predictions = hgb_profile_predictions(history, current)
     validate_exact_targets(predictions, current)
     assert len(predictions) == current["expected_predictions"]
