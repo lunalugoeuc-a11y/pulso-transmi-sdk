@@ -75,6 +75,7 @@ class FakeStore:
         self.already_submitted = already_submitted
         self.finished: list[str] = []
         self.saved_receipt = False
+        self.evaluated = False
 
     def create_run(self, *_: Any) -> str:
         return "00000000-0000-0000-0000-000000000001"
@@ -83,6 +84,10 @@ class FakeStore:
         return None
 
     def ingest_observation_page(self, *_: Any) -> int:
+        return 0
+
+    def evaluate_available_predictions(self) -> int:
+        self.evaluated = True
         return 0
 
     def finish_run(self, _run_id: str, status: str) -> None:
@@ -133,6 +138,7 @@ def test_no_cycle_finishes_successfully(monkeypatch: pytest.MonkeyPatch) -> None
     result = run_pipeline(FakeApi(None), store)
     assert result == "no_open_cycle"
     assert store.finished == ["succeeded"]
+    assert store.evaluated is True
 
 
 def test_pipeline_submits_exact_contract(monkeypatch: pytest.MonkeyPatch) -> None:

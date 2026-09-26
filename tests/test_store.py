@@ -42,3 +42,22 @@ def test_ingestion_uses_single_rpc_call() -> None:
     assert len(requests) == 1
     assert requests[0].url.path == "/rest/v1/rpc/ingest_observation_page"
     assert requests[0].headers["authorization"] == "Bearer header.payload.signature"
+
+
+def test_evaluation_uses_backend_rpc() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=48)
+
+    with SupabaseStore(
+        "https://project.supabase.co",
+        "sb_secret_test",
+        transport=httpx.MockTransport(handler),
+    ) as store:
+        assert store.evaluate_available_predictions() == 48
+
+    assert len(requests) == 1
+    assert requests[0].method == "POST"
+    assert requests[0].url.path == "/rest/v1/rpc/evaluate_available_predictions"

@@ -159,6 +159,12 @@ La métrica se calcula por estación y luego se promedia. El contrato vigente de
 submissions usa `schema_version: "1.0"`; siempre prevalece la respuesta del ciclo
 actual y la documentación del repositorio central.
 
+Después de cada sincronización, el pipeline evalúa automáticamente las
+predicciones oficiales cuyo ground truth ya esté disponible. Los errores quedan
+en `prediction_evaluations` y los resúmenes privados de los últimos seis ciclos
+en `official_model_last_six_metrics`; el proceso es idempotente y no altera ni
+reenvía submissions.
+
 ## Desarrollo del SDK
 
 ```bash

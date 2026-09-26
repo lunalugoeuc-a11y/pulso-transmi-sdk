@@ -126,6 +126,15 @@ class SupabaseStore:
         )
         return int(response.json())
 
+    def evaluate_available_predictions(self) -> int:
+        """Persist errors for complete official submissions with ground truth."""
+        response = self._request(
+            "POST",
+            "/rpc/evaluate_available_predictions",
+            json={},
+        )
+        return int(response.json())
+
     def save_cycle(self, cycle: dict[str, Any]) -> None:
         row = {
             key: cycle[key]

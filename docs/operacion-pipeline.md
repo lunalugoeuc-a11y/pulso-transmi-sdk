@@ -12,14 +12,18 @@ Pulso TransMi `1.0`:
 1. crea una ejecución trazable en `pipeline_runs`;
 2. lee el cursor confirmado y sincroniza `/v1/stream/observations`;
 3. persiste cada página y su cursor en una transacción de PostgreSQL;
-4. consulta `/v1/forecast-cycles/current` y termina en verde ante
+4. evalúa predicciones oficiales anteriores cuyo ground truth acaba de llegar;
+5. consulta `/v1/forecast-cycles/current` y termina en verde ante
    `404 no_open_cycle`;
-5. evita un nuevo POST si ya existe un recibo aceptado para ciclo y champion;
-6. carga el modelo promovido en Supabase;
-7. genera y valida exactamente los targets publicados por la API;
-8. conserva las predicciones antes del envío;
-9. envía el batch con una `Idempotency-Key` derivada del payload canónico;
-10. guarda el recibo, el hash, el commit y la relación con las predicciones.
+6. evita un nuevo POST si ya existe un recibo aceptado para ciclo y champion;
+7. carga el modelo promovido en Supabase;
+8. genera y valida exactamente los targets publicados por la API;
+9. conserva las predicciones antes del envío;
+10. envía el batch con una `Idempotency-Key` derivada del payload canónico;
+11. guarda el recibo, el hash, el commit y la relación con las predicciones.
+
+El diagnóstico actualizado del champion está en
+[`evaluacion-produccion-v6.md`](evaluacion-produccion-v6.md).
 
 El pipeline admite Extra Trees y baselines estacionales diarios (`lag 96`) y semanales
 (`lag 672`). En una validación temporal sobre los últimos siete días de las

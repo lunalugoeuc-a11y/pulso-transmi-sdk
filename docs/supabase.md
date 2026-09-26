@@ -8,7 +8,7 @@
 | Project ref | `bxokvetjqputudvuentu` |
 | Región | `sa-east-1` |
 | URL | `https://bxokvetjqputudvuentu.supabase.co` |
-| Última migración remota | `20260925150736_add_github_actions_dispatch_cron` |
+| Última migración remota | `20260926143101_add_automatic_prediction_evaluation` |
 
 El repositorio contiene dos representaciones complementarias:
 
@@ -53,7 +53,26 @@ La migración de operaciones competitivas agrega:
 6. Envía el batch completo y conserva tanto el intento como el recibo, incluso
    si la API lo rechaza.
 7. Cuando aparece el ground truth, vincula cada predicción con su observación y
-   registra la evaluación.
+   registra la evaluación. Este paso ya es automático: cada ejecución llama a
+   `evaluate_available_predictions()` después de sincronizar el stream. El RPC
+   solo considera submissions oficiales, aceptados y completos; repetirlo no
+   duplica evaluaciones.
+
+## Evaluación automática
+
+La evaluación se persiste en `prediction_evaluations` en cuanto existe una
+observación con la misma estación y `target_at`. Las siguientes vistas privadas
+permiten analizar el resultado sin recalcular uniones manualmente:
+
+- `official_prediction_errors`: detalle por ciclo, estación y horizonte;
+- `official_cycle_station_metrics`: WAPE y accuracy por estación en cada ciclo;
+- `official_cycle_metrics`: cobertura y accuracy de cada ciclo;
+- `official_model_last_six_metrics`: ventana comparable de los últimos seis
+  ciclos completamente evaluados de cada modelo.
+
+La fórmula de las vistas sigue el contrato oficial: calcula WAPE por estación,
+lo convierte a accuracy con piso en cero y después promedia estaciones. Las
+vistas y el RPC están restringidos a `service_role`.
 
 ## Seguridad
 

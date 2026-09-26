@@ -510,6 +510,10 @@ def run_pipeline(
         synced = sync_stream(api, store, run_id)
         print(f"collector: {synced} rows processed")
 
+        stage = "evaluation"
+        evaluated = store.evaluate_available_predictions()
+        print(f"evaluation: {evaluated} predictions evaluated")
+
         stage = "cycle"
         cycle = api.current_cycle()
         if cycle is None:
