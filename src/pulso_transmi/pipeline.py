@@ -547,6 +547,17 @@ def run_pipeline(
             cycle["data_cutoff"],
             points=5000 if (is_extra_trees or is_hgb_profile or is_adaptive_profile) else lag_days * 96 + 96,
         )
+        history_points = {
+            station_id: sum(1 for row in history if row["station_id"] == station_id)
+            for station_id in station_ids
+        }
+        print(
+            "history: "
+            f"stations={len(history_points)} "
+            f"min_points={min(history_points.values())} "
+            f"max_points={max(history_points.values())} "
+            f"cutoff={cycle['data_cutoff']}"
+        )
         if is_adaptive_profile:
             predictions = adaptive_profile_predictions(history, cycle)
         elif is_extra_trees or is_hgb_profile:

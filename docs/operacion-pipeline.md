@@ -60,7 +60,9 @@ semanal aunque el contrato temporal y los 48 targets fueran correctos.
 
 La lectura ahora pagina con `limit` y `offset` hasta completar la ventana o
 agotar el historial. La prueba de regresión fuerza una lectura de 1.500 filas y
-confirma dos páginas (`0` y `1000`).
+confirma dos páginas (`0` y `1000`). Cada inferencia también registra el mínimo
+y máximo de puntos recuperados por estación para detectar de inmediato una
+nueva truncación sin imprimir observaciones ni secretos.
 
 ## Ejecución local controlada
 
