@@ -17,10 +17,12 @@ Pulso TransMi `1.0`:
    `404 no_open_cycle`;
 6. evita un nuevo POST si ya existe un recibo aceptado para ciclo y champion;
 7. carga el modelo promovido en Supabase;
-8. genera y valida exactamente los targets publicados por la API;
-9. conserva las predicciones antes del envío;
-10. envía el batch con una `Idempotency-Key` derivada del payload canónico;
-11. guarda el recibo, el hash, el commit y la relación con las predicciones.
+8. recupera el historial por estación en páginas de hasta 1.000 filas para no
+   truncar la ventana larga por el límite de PostgREST;
+9. genera y valida exactamente los targets publicados por la API;
+10. conserva las predicciones antes del envío;
+11. envía el batch con una `Idempotency-Key` derivada del payload canónico;
+12. guarda el recibo, el hash, el commit y la relación con las predicciones.
 
 El diagnóstico actualizado del champion está en
 [`evaluacion-produccion-v6.md`](evaluacion-produccion-v6.md).
@@ -46,6 +48,19 @@ con resultados oficiales posteriores a la promoción.
 Por decisión operativa, el champion 6.0.0 usa un perfil adaptativo por estación,
 día de semana e intervalo, con vida media de 14 días. El 5.0.0 permanece como
 opción de reversión si el desempeño oficial del perfil adaptativo se degrada.
+
+### Corrección de profundidad histórica
+
+El 27 de septiembre se detectó que la consulta del historial solicitaba 5.000
+filas por estación en una única respuesta. Supabase/PostgREST aplica un máximo
+de 1.000 filas por respuesta, por lo que el perfil adaptativo recibía apenas
+unos diez días y, en muchos intervalos semanales, solo encontraba una
+observación. Esto hacía que 6.0.0 se comportara prácticamente como un rezago
+semanal aunque el contrato temporal y los 48 targets fueran correctos.
+
+La lectura ahora pagina con `limit` y `offset` hasta completar la ventana o
+agotar el historial. La prueba de regresión fuerza una lectura de 1.500 filas y
+confirma dos páginas (`0` y `1000`).
 
 ## Ejecución local controlada
 

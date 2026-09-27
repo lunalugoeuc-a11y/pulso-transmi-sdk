@@ -202,20 +202,34 @@ class SupabaseStore:
     def history(
         self, station_ids: list[str], cutoff: str, *, points: int = 192
     ) -> list[dict[str, Any]]:
+        if points < 1:
+            raise ValueError("points must be positive")
         rows: list[dict[str, Any]] = []
+        # Hosted Supabase projects cap a PostgREST response (1,000 rows by
+        # default), even when a larger `limit` is requested. Fetch explicit
+        # pages so long-history models receive the full as-of-cutoff window.
+        page_size = min(points, 1000)
         for station_id in station_ids:
-            response = self._request(
-                "GET",
-                "/observations",
-                params={
-                    "station_id": f"eq.{station_id}",
-                    "observed_at": f"lte.{cutoff}",
-                    "select": "station_id,observed_at,demand",
-                    "order": "observed_at.desc",
-                    "limit": points,
-                },
-            )
-            rows.extend(response.json())
+            offset = 0
+            while offset < points:
+                requested = min(page_size, points - offset)
+                response = self._request(
+                    "GET",
+                    "/observations",
+                    params={
+                        "station_id": f"eq.{station_id}",
+                        "observed_at": f"lte.{cutoff}",
+                        "select": "station_id,observed_at,demand",
+                        "order": "observed_at.desc",
+                        "limit": requested,
+                        "offset": offset,
+                    },
+                )
+                page = response.json()
+                rows.extend(page)
+                offset += len(page)
+                if len(page) < requested:
+                    break
         return rows
 
     def save_predictions(
