@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from datetime import timedelta
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -26,6 +28,13 @@ CANDIDATES: dict[str, PredictionFunction] = {
     "extra_trees": extra_trees_predictions,
     "daily_weekly": hybrid_seasonal_predictions,
 }
+
+
+def publish_summary(message: str) -> None:
+    print(message)
+    summary_path = os.getenv("SELECTION_SUMMARY_PATH")
+    if summary_path:
+        Path(summary_path).write_text(message, encoding="utf-8")
 
 
 def model_key(algorithm: str) -> str | None:
@@ -199,18 +208,22 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
         )
 
     selected_key = choose_candidate(scores, active_key)
+    active_accuracy = 100 * float(scores[active_key]["accuracy"])
+    best_key = max(scores, key=lambda key: float(scores[key]["accuracy"]))
+    best_accuracy = 100 * float(scores[best_key]["accuracy"])
     if selected_key == active_key:
-        print(
+        publish_summary(
             f"selection: keep={active['version']} reason=guardrails "
-            f"window_cycles={len(complete_cycles)}"
+            f"accuracy={active_accuracy:.2f}% best={best_key}:{best_accuracy:.2f}%"
         )
         return "kept"
 
     selected_model = model_by_key[selected_key]
     promoted = store.promote_model(selected_model["model_id"])
-    print(
+    publish_summary(
         f"selection: promoted={promoted['version']} candidate={selected_key} "
-        f"previous={active['version']} window_cycles={len(complete_cycles)}"
+        f"accuracy={100 * float(scores[selected_key]['accuracy']):.2f}% "
+        f"previous={active['version']}:{active_accuracy:.2f}%"
     )
     return "promoted"
 

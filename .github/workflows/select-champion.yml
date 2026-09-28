@@ -34,13 +34,14 @@ jobs:
           PULSO_API_KEY: ${{ secrets.PULSO_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SELECTION_SUMMARY_PATH: champion-selection-summary.txt
         run: python -m pulso_transmi.champion | tee champion-selection.log
       - name: Publish selection result
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          summary="$(grep '^selection:' champion-selection.log | tail -1 | cut -c1-130)"
+          summary="$(cut -c1-130 champion-selection-summary.txt)"
           gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -f state=success \
             -f context='pulso-transmi/champion-selection' \
