@@ -210,6 +210,26 @@ class SupabaseStore:
         )
         return response.json()
 
+    def official_prediction_errors(
+        self, model_id: str, *, limit: int = 2000
+    ) -> list[dict[str, Any]]:
+        """Return evaluated targets from accepted, complete official submissions."""
+        if limit < 1:
+            raise ValueError("limit must be positive")
+        response = self._request(
+            "GET",
+            "/official_prediction_errors",
+            params={
+                "model_id": f"eq.{model_id}",
+                "select": (
+                    "cycle_id,station_id,target_at,observed_demand,evaluated_at"
+                ),
+                "order": "target_at.desc,station_id.asc",
+                "limit": limit,
+            },
+        )
+        return response.json()
+
     def promote_model(self, model_id: str) -> dict[str, Any]:
         models = self.models()
         candidate = next(

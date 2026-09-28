@@ -65,6 +65,37 @@ def test_evaluation_uses_backend_rpc() -> None:
     assert requests[0].url.path == "/rest/v1/rpc/evaluate_available_predictions"
 
 
+def test_official_prediction_errors_are_filtered_by_model() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json=[
+                {
+                    "cycle_id": "cycle-1",
+                    "station_id": "05100",
+                    "target_at": "2026-09-28T05:15:00Z",
+                    "observed_demand": 42,
+                }
+            ],
+        )
+
+    with SupabaseStore(
+        "https://project.supabase.co",
+        "sb_secret_test",
+        transport=httpx.MockTransport(handler),
+    ) as store:
+        rows = store.official_prediction_errors("model-6", limit=288)
+
+    assert rows[0]["observed_demand"] == 42
+    query = parse_qs(requests[0].url.query.decode())
+    assert requests[0].url.path == "/rest/v1/official_prediction_errors"
+    assert query["model_id"] == ["eq.model-6"]
+    assert query["limit"] == ["288"]
+
+
 def test_history_paginates_past_supabase_row_cap() -> None:
     requests: list[httpx.Request] = []
 

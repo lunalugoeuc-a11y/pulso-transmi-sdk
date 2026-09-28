@@ -160,10 +160,14 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
     observations["station_id"] = observations["station_id"].astype(str)
     observations["demand"] = pd.to_numeric(observations["demand"], errors="coerce")
     observations = observations.dropna(subset=["demand"])
-    observed_lookup = {
-        (str(row.station_id), row.observed_at.to_pydatetime()): float(row.demand)
-        for row in observations.itertuples(index=False)
-    }
+    evaluated_rows = store.official_prediction_errors(active["model_id"])
+    evaluated_by_cycle: dict[
+        str, dict[tuple[str, datetime], float]
+    ] = {}
+    for row in evaluated_rows:
+        evaluated_by_cycle.setdefault(str(row["cycle_id"]), {})[
+            (str(row["station_id"]), _timestamp(str(row["target_at"])))
+        ] = float(row["observed_demand"])
 
     complete_cycles: list[dict[str, Any]] = []
     for cycle in cycles:
@@ -171,7 +175,10 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
             (str(target["station_id"]), _timestamp(target["target_at"]))
             for target in cycle["targets"]
         }
-        if all(key in observed_lookup for key in target_keys):
+        cycle_observed = evaluated_by_cycle.get(str(cycle["cycle_id"]), {})
+        if len(cycle_observed) == int(cycle["expected_predictions"]) and all(
+            key in cycle_observed for key in target_keys
+        ):
             complete_cycles.append(cycle)
         if len(complete_cycles) == 6:
             break
@@ -192,7 +199,9 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
             for target in cycle["targets"]:
                 normalized = _timestamp(target["target_at"])
                 lookup_key = (str(target["station_id"]), normalized)
-                candidate_observed[lookup_key] = observed_lookup[lookup_key]
+                candidate_observed[lookup_key] = evaluated_by_cycle[
+                    str(cycle["cycle_id"])
+                ][lookup_key]
         metrics = score_window(candidate_predictions, candidate_observed)
         if metrics["evaluated_targets"] != expected_targets:
             raise RuntimeError(
