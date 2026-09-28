@@ -185,6 +185,61 @@ class SupabaseStore:
             raise SupabaseStoreError("there is no promoted model")
         return rows[0]
 
+    def models(self) -> list[dict[str, Any]]:
+        response = self._request(
+            "GET",
+            "/models",
+            params={
+                "select": "model_id,model_name,algorithm,version,is_active,created_at",
+                "order": "created_at.desc",
+            },
+        )
+        return response.json()
+
+    def recent_cycles(self, *, limit: int = 24) -> list[dict[str, Any]]:
+        if limit < 1:
+            raise ValueError("limit must be positive")
+        response = self._request(
+            "GET",
+            "/forecast_cycles",
+            params={
+                "select": "cycle_id,origin_at,data_cutoff,contract_json,first_seen_at",
+                "order": "origin_at.desc,cycle_id.desc",
+                "limit": limit,
+            },
+        )
+        return response.json()
+
+    def promote_model(self, model_id: str) -> dict[str, Any]:
+        models = self.models()
+        candidate = next(
+            (model for model in models if model["model_id"] == model_id), None
+        )
+        if candidate is None:
+            raise SupabaseStoreError(f"unknown model {model_id}")
+        if candidate["is_active"]:
+            return candidate
+
+        # Enable the candidate first. If the following request fails, the
+        # current (newer) champion still wins active_model() ordering, so the
+        # prediction pipeline never observes a no-champion gap.
+        self._request(
+            "PATCH",
+            "/models",
+            params={"model_id": f"eq.{model_id}"},
+            json={"is_active": True},
+        )
+        self._request(
+            "PATCH",
+            "/models",
+            params={"model_id": f"neq.{model_id}", "is_active": "eq.true"},
+            json={"is_active": False},
+        )
+        active = self.active_model()
+        if active["model_id"] != model_id:
+            raise SupabaseStoreError("model promotion verification failed")
+        return active
+
     def accepted_receipt_exists(self, cycle_id: str, model_id: str) -> bool:
         response = self._request(
             "GET",

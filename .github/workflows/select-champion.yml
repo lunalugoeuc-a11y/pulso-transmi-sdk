@@ -1,0 +1,47 @@
+name: pulso-transmi-select-champion
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/select-champion.yml"
+      - "src/pulso_transmi/champion.py"
+      - "src/pulso_transmi/store.py"
+
+concurrency:
+  group: pulso-transmi-select-champion
+  cancel-in-progress: false
+
+jobs:
+  compare-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e .
+      - name: Compare official cycles and promote only under guardrails
+        env:
+          PULSO_API_URL: ${{ vars.PULSO_API_URL }}
+          PULSO_API_KEY: ${{ secrets.PULSO_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python -m pulso_transmi.champion | tee champion-selection.log
+      - name: Publish selection result
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          summary="$(grep '^selection:' champion-selection.log | tail -1 | cut -c1-130)"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=success \
+            -f context='pulso-transmi/champion-selection' \
+            -f description="${summary}"
