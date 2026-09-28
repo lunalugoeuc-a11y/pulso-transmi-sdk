@@ -27,7 +27,19 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install
-        run: python -m pip install -e .
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          for attempt in 1 2 3; do
+            if python -m pip install -e .; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Dependency installation failed after 3 attempts" >&2
+              exit 1
+            fi
+            sleep $((attempt * 10))
+          done
       - name: Compare official cycles and promote only under guardrails
         env:
           PULSO_API_URL: ${{ vars.PULSO_API_URL }}
