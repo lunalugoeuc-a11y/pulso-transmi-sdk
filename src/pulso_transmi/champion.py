@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -52,11 +52,14 @@ def model_key(algorithm: str) -> str | None:
 
 def score_window(
     predictions: list[dict[str, Any]],
-    observed: dict[tuple[str, str], float],
+    observed: dict[tuple[str, datetime], float],
 ) -> dict[str, float | int]:
     by_station: dict[str, list[tuple[float, float]]] = {}
     for prediction in predictions:
-        key = (str(prediction["station_id"]), str(prediction["target_at"]))
+        key = (
+            str(prediction["station_id"]),
+            _timestamp(str(prediction["target_at"])),
+        )
         if key not in observed:
             continue
         by_station.setdefault(key[0], []).append(
@@ -158,14 +161,14 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
     observations["demand"] = pd.to_numeric(observations["demand"], errors="coerce")
     observations = observations.dropna(subset=["demand"])
     observed_lookup = {
-        (str(row.station_id), row.observed_at.isoformat()): float(row.demand)
+        (str(row.station_id), row.observed_at.to_pydatetime()): float(row.demand)
         for row in observations.itertuples(index=False)
     }
 
     complete_cycles: list[dict[str, Any]] = []
     for cycle in cycles:
         target_keys = {
-            (str(target["station_id"]), pd.Timestamp(target["target_at"]).isoformat())
+            (str(target["station_id"]), _timestamp(target["target_at"]))
             for target in cycle["targets"]
         }
         if all(key in observed_lookup for key in target_keys):
@@ -181,19 +184,15 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
     scores: dict[str, dict[str, float | int]] = {}
     for key, predict in candidate_functions.items():
         candidate_predictions: list[dict[str, Any]] = []
-        candidate_observed: dict[tuple[str, str], float] = {}
+        candidate_observed: dict[tuple[str, datetime], float] = {}
         for cycle in complete_cycles:
             history = _history_rows(observations, cycle["data_cutoff"])
             predicted = predict(history, cycle)
             candidate_predictions.extend(predicted)
             for target in cycle["targets"]:
-                normalized = pd.Timestamp(target["target_at"]).isoformat()
+                normalized = _timestamp(target["target_at"])
                 lookup_key = (str(target["station_id"]), normalized)
                 candidate_observed[lookup_key] = observed_lookup[lookup_key]
-            for prediction in predicted:
-                prediction["target_at"] = pd.Timestamp(
-                    prediction["target_at"]
-                ).isoformat()
         metrics = score_window(candidate_predictions, candidate_observed)
         if metrics["evaluated_targets"] != expected_targets:
             raise RuntimeError(

@@ -3,16 +3,16 @@ from pulso_transmi.champion import choose_candidate, model_key, score_window
 
 def test_score_window_matches_station_wape_definition() -> None:
     predictions = [
-        {"station_id": "A", "target_at": "t1", "value": 90},
-        {"station_id": "A", "target_at": "t2", "value": 110},
-        {"station_id": "B", "target_at": "t1", "value": 50},
-        {"station_id": "B", "target_at": "t2", "value": 50},
+        {"station_id": "A", "target_at": "2026-09-28T00:15:00-05:00", "value": 90},
+        {"station_id": "A", "target_at": "2026-09-28T00:30:00-05:00", "value": 110},
+        {"station_id": "B", "target_at": "2026-09-28T00:15:00-05:00", "value": 50},
+        {"station_id": "B", "target_at": "2026-09-28T00:30:00-05:00", "value": 50},
     ]
     observed = {
-        ("A", "t1"): 100,
-        ("A", "t2"): 100,
-        ("B", "t1"): 100,
-        ("B", "t2"): 100,
+        ("A", _utc("2026-09-28T05:15:00Z")): 100,
+        ("A", _utc("2026-09-28T05:30:00Z")): 100,
+        ("B", _utc("2026-09-28T05:15:00Z")): 100,
+        ("B", _utc("2026-09-28T05:30:00Z")): 100,
     }
 
     score = score_window(predictions, observed)
@@ -21,6 +21,12 @@ def test_score_window_matches_station_wape_definition() -> None:
     assert score["station_count"] == 2
     assert score["accuracy"] == 0.7
     assert score["min_station_accuracy"] == 0.5
+
+
+def _utc(value: str):
+    from pulso_transmi.pipeline import _timestamp
+
+    return _timestamp(value)
 
 
 def test_selection_requires_material_gain_and_station_guardrail() -> None:
