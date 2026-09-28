@@ -38,11 +38,12 @@ jobs:
         run: python -m pulso_transmi.champion | tee champion-selection.log
       - name: Publish selection result
         if: success()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          summary="$(cut -c1-130 champion-selection-summary.txt)"
+          encoded="$(base64 -w0 champion-selection-summary.txt | tr '+/' '-_' | tr -d '=')"
           gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -f state=success \
-            -f context='pulso-transmi/champion-selection' \
-            -f description="${summary}"
+            -f context="pulso-transmi/selection/${encoded}" \
+            -f description='champion selection complete'
