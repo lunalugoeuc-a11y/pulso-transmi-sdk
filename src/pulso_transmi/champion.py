@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any
-
-import pandas as pd
 
 from pulso_transmi.client import PulsoTransmiClient
 from pulso_transmi.pipeline import (
@@ -103,21 +101,10 @@ def choose_candidate(
     return best_key
 
 
-def _history_rows(frame: pd.DataFrame, cutoff: str) -> list[dict[str, Any]]:
-    bounded = frame.loc[frame["observed_at"] <= pd.Timestamp(cutoff)].copy()
-    bounded = bounded.sort_values(["station_id", "observed_at"])
-    bounded = bounded.groupby("station_id", observed=True).tail(5000)
-    return [
-        {
-            "station_id": str(row.station_id),
-            "observed_at": row.observed_at.isoformat(),
-            "demand": float(row.demand),
-        }
-        for row in bounded.itertuples(index=False)
-    ]
-
-
 def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
+    # Keep the API dependency in the public entry point, while sourcing the
+    # comparison history from the same Supabase path used by production.
+    del api
     models = store.models()
     active = next((model for model in models if model["is_active"]), None)
     if active is None:
@@ -144,22 +131,6 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
     if not stored_cycles:
         raise RuntimeError("there are no stored official cycles")
     cycles = [row["contract_json"] for row in stored_cycles]
-    earliest_cutoff = min(_timestamp(cycle["data_cutoff"]) for cycle in cycles)
-    latest_target = max(
-        _timestamp(target["target_at"])
-        for cycle in cycles
-        for target in cycle["targets"]
-    )
-    observations = api.observations_dataframe(
-        start=(earliest_cutoff - timedelta(days=60)).isoformat(),
-        end=latest_target.isoformat(),
-        page_size=5000,
-    )
-    if observations.empty:
-        raise RuntimeError("historical observations are empty")
-    observations["station_id"] = observations["station_id"].astype(str)
-    observations["demand"] = pd.to_numeric(observations["demand"], errors="coerce")
-    observations = observations.dropna(subset=["demand"])
     evaluated_rows = store.official_prediction_errors(active["model_id"])
     evaluated_by_cycle: dict[
         str, dict[tuple[str, datetime], float]
@@ -187,21 +158,36 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
             f"only {len(complete_cycles)} complete cycles are available; six required"
         )
 
+    history_by_cycle: dict[str, list[dict[str, Any]]] = {}
+    for cycle in complete_cycles:
+        station_ids = sorted(
+            {str(target["station_id"]) for target in cycle["targets"]}
+        )
+        history_by_cycle[str(cycle["cycle_id"])] = store.history(
+            station_ids, cycle["data_cutoff"], points=5000
+        )
+
     expected_targets = sum(cycle["expected_predictions"] for cycle in complete_cycles)
     scores: dict[str, dict[str, float | int]] = {}
     for key, predict in candidate_functions.items():
         candidate_predictions: list[dict[str, Any]] = []
         candidate_observed: dict[tuple[str, datetime], float] = {}
-        for cycle in complete_cycles:
-            history = _history_rows(observations, cycle["data_cutoff"])
-            predicted = predict(history, cycle)
-            candidate_predictions.extend(predicted)
-            for target in cycle["targets"]:
-                normalized = _timestamp(target["target_at"])
-                lookup_key = (str(target["station_id"]), normalized)
-                candidate_observed[lookup_key] = evaluated_by_cycle[
-                    str(cycle["cycle_id"])
-                ][lookup_key]
+        try:
+            for cycle in complete_cycles:
+                history = history_by_cycle[str(cycle["cycle_id"])]
+                predicted = predict(history, cycle)
+                candidate_predictions.extend(predicted)
+                for target in cycle["targets"]:
+                    normalized = _timestamp(target["target_at"])
+                    lookup_key = (str(target["station_id"]), normalized)
+                    candidate_observed[lookup_key] = evaluated_by_cycle[
+                        str(cycle["cycle_id"])
+                    ][lookup_key]
+        except RuntimeError as exc:
+            if key == active_key:
+                raise
+            print(f"candidate: name={key} unavailable={exc}")
+            continue
         metrics = score_window(candidate_predictions, candidate_observed)
         if metrics["evaluated_targets"] != expected_targets:
             raise RuntimeError(
