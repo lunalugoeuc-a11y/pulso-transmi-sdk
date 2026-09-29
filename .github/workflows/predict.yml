@@ -3,9 +3,10 @@ name: pulso-transmi-predict
 on:
   schedule:
     # Official windows open around minute :38 and remain open for 25 minutes.
-    # One run at :50 is enough to submit inside the window without burning
-    # Actions minutes on twelve redundant checks every hour.
-    - cron: "50 * * * *"
+    # GitHub's scheduler can be delayed, so keep two native fallbacks. Supabase
+    # dispatches the same idempotent workflow at :40 and :50 as the primary
+    # scheduler; duplicate runs safely return already_submitted.
+    - cron: "45,55 * * * *"
   workflow_dispatch:
 
 concurrency:
