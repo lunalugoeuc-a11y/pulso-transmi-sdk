@@ -90,14 +90,15 @@ El token usado para disparar GitHub Actions está cifrado en Supabase Vault bajo
 Solo tiene acceso al repositorio del proyecto y permiso de escritura sobre
 Actions. Debe rotarse antes de su expiración el 25 de octubre de 2026.
 
-## Cron redundante
+## Horario de inferencia
 
-La migración `20260925150736_add_github_actions_dispatch_cron.sql` habilita
-`pg_cron` y `pg_net` y registra `pulso-transmi-github-dispatch` con frecuencia
-de cinco minutos. Cada ejecución solicita a GitHub el workflow `predict.yml` en
-la rama `main`. GitHub respondió `204` a la prueba de despacho y el workflow
-`#84` concluyó correctamente. Si no existe ciclo abierto, el pipeline termina
-en verde sin enviar predicciones; si ya existe recibo, no duplica el submission.
+La migración `20260925150736_add_github_actions_dispatch_cron.sql` creó
+originalmente un respaldo en Supabase cada cinco minutos. Ese job fue retirado
+por `20260929195837_remove_redundant_github_dispatch_cron.sql` para evitar
+ejecuciones redundantes. GitHub ejecuta directamente `predict.yml` una vez por
+hora al minuto `:50`, sin depender del computador personal. Si no existe ciclo
+abierto, el pipeline termina en verde sin enviar predicciones; si ya existe un
+recibo aceptado, no duplica el submission.
 
 ## Desarrollo y migraciones
 

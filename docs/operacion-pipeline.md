@@ -80,24 +80,21 @@ cero.
 ## GitHub Actions
 
 El horario vive en GitHub, no en el computador del estudiante. El workflow se
-despierta cada cinco minutos (cron en UTC), por lo que sigue operando aunque el
-computador personal esté apagado. Esta frecuencia compensa retrasos u omisiones
-del scheduler y ofrece varios intentos dentro de cada ventana de 25 minutos. La
-consulta del ciclo y la idempotencia impiden duplicar entregas.
+despierta una vez por hora al minuto `:50` (cron en UTC), por lo que sigue
+operando aunque el computador personal esté apagado. La consulta del ciclo y
+la idempotencia impiden duplicar entregas.
 
 El workflow [`.github/workflows/predict.yml`](../.github/workflows/predict.yml)
-despierta cada cinco minutos y también admite ejecución manual. Usa
-`concurrency` para no solapar dos ejecuciones y un timeout de ocho minutos.
+se ejecuta una vez por hora, al minuto `:50`, dentro de la ventana oficial.
+La selección del champion se repite cada seis horas y solo promueve un
+candidato con cobertura completa que supere los guardrails temporales.
+También admite ejecución manual, usa `concurrency` para no solapar dos
+ejecuciones y tiene un timeout de ocho minutos.
 
-Como respaldo ante retrasos u omisiones del scheduler nativo de GitHub,
-Supabase ejecuta cada cinco minutos el job
-`pulso-transmi-github-dispatch`. El job usa `pg_cron` y `pg_net` para invocar
-`workflow_dispatch`; la credencial vive cifrada en Vault con el nombre
-`github_actions_dispatch_token`. El token está limitado al repositorio
-`lunalugoeuc-a11y/pulso-transmi-sdk` y al permiso `Actions: read/write`.
-La API sigue decidiendo si existe un ciclo y la idempotencia evita envíos
-duplicados. El token vigente expira el 25 de octubre de 2026 y debe rotarse en
-Vault antes de esa fecha.
+El antiguo respaldo de Supabase que disparaba GitHub cada cinco minutos fue
+retirado para evitar ejecuciones redundantes. La credencial puede conservarse
+en Vault para ejecuciones manuales controladas, pero no participa del horario
+normal.
 
 Configura estos valores en **Settings → Secrets and variables → Actions**:
 

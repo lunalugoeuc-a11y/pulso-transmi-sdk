@@ -2,6 +2,10 @@ name: pulso-transmi-select-champion
 
 on:
   workflow_dispatch:
+  schedule:
+    # Re-evaluate only after several new official cycles can exist. The
+    # selector keeps the champion unless a candidate wins under all guards.
+    - cron: "20 */6 * * *"
   push:
     branches: [main]
     paths:

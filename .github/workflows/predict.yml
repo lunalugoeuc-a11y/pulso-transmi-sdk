@@ -2,10 +2,10 @@ name: pulso-transmi-predict
 
 on:
   schedule:
-    # Scheduled runs can be delayed or skipped. Wake at GitHub's minimum
-    # interval so every 25-minute competition window gets several chances.
-    # The API is authoritative and idempotency prevents duplicate submissions.
-    - cron: "*/5 * * * *"
+    # Official windows open around minute :38 and remain open for 25 minutes.
+    # One run at :50 is enough to submit inside the window without burning
+    # Actions minutes on twelve redundant checks every hour.
+    - cron: "50 * * * *"
   workflow_dispatch:
 
 concurrency:
