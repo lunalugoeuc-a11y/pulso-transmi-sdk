@@ -211,22 +211,29 @@ class SupabaseStore:
         return response.json()
 
     def official_prediction_errors(
-        self, model_id: str, *, limit: int = 2000
+        self, model_id: str | None = None, *, limit: int = 2000
     ) -> list[dict[str, Any]]:
-        """Return evaluated targets from accepted, complete official submissions."""
+        """Return evaluated targets from accepted, complete official submissions.
+
+        The observed demand is model-independent. Champion selection therefore
+        reads ground truth across every evaluated submission; callers that need
+        production metrics for one model can still pass ``model_id``.
+        """
         if limit < 1:
             raise ValueError("limit must be positive")
+        params = {
+            "select": (
+                "cycle_id,station_id,target_at,observed_demand,evaluated_at"
+            ),
+            "order": "target_at.desc,station_id.asc",
+            "limit": limit,
+        }
+        if model_id is not None:
+            params["model_id"] = f"eq.{model_id}"
         response = self._request(
             "GET",
             "/official_prediction_errors",
-            params={
-                "model_id": f"eq.{model_id}",
-                "select": (
-                    "cycle_id,station_id,target_at,observed_demand,evaluated_at"
-                ),
-                "order": "target_at.desc,station_id.asc",
-                "limit": limit,
-            },
+            params=params,
         )
         return response.json()
 

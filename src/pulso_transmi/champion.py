@@ -131,7 +131,11 @@ def run_selection(api: PulsoTransmiClient, store: SupabaseStore) -> str:
     if not stored_cycles:
         raise RuntimeError("there are no stored official cycles")
     cycles = [row["contract_json"] for row in stored_cycles]
-    evaluated_rows = store.official_prediction_errors(active["model_id"])
+    # Ground truth belongs to the official cycle, not to the champion that
+    # happened to submit it. Reading across models keeps selection operational
+    # immediately after a promotion, before the new champion has six evaluated
+    # submissions of its own.
+    evaluated_rows = store.official_prediction_errors()
     evaluated_by_cycle: dict[
         str, dict[tuple[str, datetime], float]
     ] = {}

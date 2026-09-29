@@ -96,6 +96,25 @@ def test_official_prediction_errors_are_filtered_by_model() -> None:
     assert query["limit"] == ["288"]
 
 
+def test_official_prediction_errors_can_read_model_independent_ground_truth() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=[])
+
+    with SupabaseStore(
+        "https://project.supabase.co",
+        "sb_secret_test",
+        transport=httpx.MockTransport(handler),
+    ) as store:
+        store.official_prediction_errors(limit=288)
+
+    query = parse_qs(requests[0].url.query.decode())
+    assert "model_id" not in query
+    assert query["limit"] == ["288"]
+
+
 def test_history_paginates_past_supabase_row_cap() -> None:
     requests: list[httpx.Request] = []
 
