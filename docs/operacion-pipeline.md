@@ -49,6 +49,13 @@ Por decisión operativa, el champion 6.0.0 usa un perfil adaptativo por estació
 día de semana e intervalo, con vida media de 14 días. El 5.0.0 permanece como
 opción de reversión si el desempeño oficial del perfil adaptativo se degrada.
 
+El candidato 7.0.0 se diseñó para cambios abruptos de régimen. Entrena cuatro
+horizontes explícitos con variables disponibles en el corte, incorpora el nivel
+actual y rezagos de una y tres horas, limita la ventana a 21 días y pondera las
+observaciones con vida media de tres días. La selección automática solo lo
+promueve si supera al champion sobre seis ciclos oficiales completos, conserva
+48/48 objetivos y respeta el guardrail de peor estación.
+
 ### Corrección de profundidad histórica
 
 El 27 de septiembre se detectó que la consulta del historial solicitaba 5.000

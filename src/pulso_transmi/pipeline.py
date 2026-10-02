@@ -33,6 +33,26 @@ EXTRA_TREES_FEATURES = (
 HGB_PROFILE_FEATURES = EXTRA_TREES_FEATURES
 HGB_PROFILE_WEIGHT = 0.40
 EXTRA_TREES_STACK_WEIGHT = 0.75
+DRIFT_ADAPTIVE_FEATURES = (
+    "station_code",
+    "horizon_steps",
+    "slot_sin",
+    "slot_cos",
+    "dow_sin",
+    "dow_cos",
+    "is_weekend",
+    "lag_cutoff",
+    "lag_1h_before_cutoff",
+    "lag_3h_before_cutoff",
+    "lag_1d",
+    "lag_2d",
+    "lag_7d",
+    "recent_change_1h",
+    "level_change_1d",
+    "level_change_7d",
+)
+DRIFT_ADAPTIVE_TRAINING_DAYS = 21
+DRIFT_ADAPTIVE_HALF_LIFE_DAYS = 3.0
 
 
 def _timestamp(value: str) -> datetime:
@@ -432,6 +452,165 @@ def hgb_profile_predictions(
     ]
 
 
+def drift_adaptive_predictions(
+    history: list[dict[str, Any]], cycle: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Retrain a recency-weighted model that can react to abrupt level shifts.
+
+    The four forecast horizons are trained explicitly. For a historical target
+    at time ``t`` and horizon ``h``, ``lag_cutoff`` is the value at ``t-h``;
+    therefore every feature was already observable at that simulated cutoff.
+    Short lags make the model responsive immediately after drift instead of
+    waiting a full day for lag 96 to enter the new regime.
+    """
+    cutoff = _timestamp(cycle["data_cutoff"])
+    frame = pd.DataFrame(history)
+    if frame.empty:
+        raise RuntimeError("not enough history to train drift-adaptive model")
+    frame["observed_at"] = pd.to_datetime(frame["observed_at"], utc=True)
+    frame["demand"] = pd.to_numeric(frame["demand"], errors="coerce")
+    frame = frame.loc[frame["observed_at"] <= cutoff].dropna(subset=["demand"])
+    frame = frame.sort_values(["station_id", "observed_at"]).drop_duplicates(
+        ["station_id", "observed_at"], keep="last"
+    )
+    frame["station_id"] = frame["station_id"].astype(str)
+    stations = sorted(frame["station_id"].unique())
+    station_codes = {station_id: index for index, station_id in enumerate(stations)}
+    frame["station_code"] = frame["station_id"].map(station_codes)
+    local_time = frame["observed_at"].dt.tz_convert("America/Bogota")
+    frame["slot_sin"] = np.sin(
+        2 * np.pi * (local_time.dt.hour * 4 + local_time.dt.minute // 15) / 96
+    )
+    frame["slot_cos"] = np.cos(
+        2 * np.pi * (local_time.dt.hour * 4 + local_time.dt.minute // 15) / 96
+    )
+    frame["dow_sin"] = np.sin(2 * np.pi * local_time.dt.dayofweek / 7)
+    frame["dow_cos"] = np.cos(2 * np.pi * local_time.dt.dayofweek / 7)
+    frame["is_weekend"] = (local_time.dt.dayofweek >= 5).astype(int)
+
+    grouped = frame.groupby("station_id", observed=True)["demand"]
+    lag_columns: dict[int, pd.Series] = {
+        lag: grouped.shift(lag)
+        for lag in (1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 96, 192, 672)
+    }
+    training_parts: list[pd.DataFrame] = []
+    for horizon_steps in range(1, 5):
+        part = frame[
+            [
+                "observed_at",
+                "demand",
+                "station_code",
+                "slot_sin",
+                "slot_cos",
+                "dow_sin",
+                "dow_cos",
+                "is_weekend",
+            ]
+        ].copy()
+        part["horizon_steps"] = horizon_steps
+        part["lag_cutoff"] = lag_columns[horizon_steps]
+        part["lag_1h_before_cutoff"] = lag_columns[horizon_steps + 4]
+        part["lag_3h_before_cutoff"] = lag_columns[horizon_steps + 12]
+        part["lag_1d"] = lag_columns[96]
+        part["lag_2d"] = lag_columns[192]
+        part["lag_7d"] = lag_columns[672]
+        part["recent_change_1h"] = (
+            part["lag_cutoff"] - part["lag_1h_before_cutoff"]
+        )
+        part["level_change_1d"] = part["lag_cutoff"] - part["lag_1d"]
+        part["level_change_7d"] = part["lag_cutoff"] - part["lag_7d"]
+        training_parts.append(part)
+    training = pd.concat(training_parts, ignore_index=True).dropna(
+        subset=[*DRIFT_ADAPTIVE_FEATURES, "demand"]
+    )
+    window_start = pd.Timestamp(
+        cutoff - timedelta(days=DRIFT_ADAPTIVE_TRAINING_DAYS)
+    )
+    training = training.loc[training["observed_at"] >= window_start]
+    if len(training) < 1000:
+        raise RuntimeError("not enough complete history to train drift-adaptive model")
+    age_days = (
+        pd.Timestamp(cutoff) - training["observed_at"]
+    ).dt.total_seconds() / 86400
+    sample_weight = np.power(0.5, age_days / DRIFT_ADAPTIVE_HALF_LIFE_DAYS)
+    model = ExtraTreesRegressor(
+        n_estimators=240,
+        min_samples_leaf=5,
+        max_features=0.9,
+        n_jobs=-1,
+        random_state=42,
+    )
+    model.fit(
+        training[list(DRIFT_ADAPTIVE_FEATURES)],
+        training["demand"],
+        sample_weight=sample_weight,
+    )
+
+    lookup = {
+        (row.station_id, row.observed_at.to_pydatetime()): float(row.demand)
+        for row in frame[["station_id", "observed_at", "demand"]].itertuples(
+            index=False
+        )
+    }
+    feature_rows: list[dict[str, Any]] = []
+    for target in cycle["targets"]:
+        station_id = str(target["station_id"])
+        target_at = _timestamp(target["target_at"])
+        horizon_steps = int(target["horizon_minutes"]) // 15
+        if station_id not in station_codes or horizon_steps not in range(1, 5):
+            raise RuntimeError(f"unsupported target for station {station_id}")
+        local_target = pd.Timestamp(target_at).tz_convert("America/Bogota")
+        local_slot = int(local_target.hour * 4 + local_target.minute // 15)
+
+        def demand_at(lag_steps: int) -> float:
+            value = lookup.get(
+                (station_id, target_at - timedelta(minutes=15 * lag_steps))
+            )
+            if value is None:
+                raise RuntimeError(
+                    f"missing lag {lag_steps} for station {station_id}"
+                )
+            return value
+
+        lag_cutoff = demand_at(horizon_steps)
+        lag_1h = demand_at(horizon_steps + 4)
+        lag_3h = demand_at(horizon_steps + 12)
+        lag_1d = demand_at(96)
+        lag_2d = demand_at(192)
+        lag_7d = demand_at(672)
+        feature_rows.append(
+            {
+                "station_code": station_codes[station_id],
+                "horizon_steps": horizon_steps,
+                "slot_sin": math.sin(2 * math.pi * local_slot / 96),
+                "slot_cos": math.cos(2 * math.pi * local_slot / 96),
+                "dow_sin": math.sin(2 * math.pi * int(local_target.dayofweek) / 7),
+                "dow_cos": math.cos(2 * math.pi * int(local_target.dayofweek) / 7),
+                "is_weekend": int(local_target.dayofweek >= 5),
+                "lag_cutoff": lag_cutoff,
+                "lag_1h_before_cutoff": lag_1h,
+                "lag_3h_before_cutoff": lag_3h,
+                "lag_1d": lag_1d,
+                "lag_2d": lag_2d,
+                "lag_7d": lag_7d,
+                "recent_change_1h": lag_cutoff - lag_1h,
+                "level_change_1d": lag_cutoff - lag_1d,
+                "level_change_7d": lag_cutoff - lag_7d,
+            }
+        )
+    values = model.predict(
+        pd.DataFrame(feature_rows)[list(DRIFT_ADAPTIVE_FEATURES)]
+    )
+    return [
+        {
+            "station_id": target["station_id"],
+            "target_at": target["target_at"],
+            "value": round(min(100_000.0, max(0.0, float(value))), 3),
+        }
+        for target, value in zip(cycle["targets"], values, strict=True)
+    ]
+
+
 def validate_exact_targets(
     predictions: list[dict[str, Any]], cycle: dict[str, Any]
 ) -> None:
@@ -531,10 +710,11 @@ def run_pipeline(
         model = store.active_model()
         algorithm = model["algorithm"].lower()
         is_extra_trees = "extra trees" in algorithm
+        is_drift_adaptive = "drift adaptive" in algorithm
         is_hgb_profile = "hgb" in algorithm and "profile" in algorithm
         is_adaptive_profile = "adaptive profile" in algorithm and "hl14" in algorithm
         is_hybrid = "hybrid" in algorithm and "lag 96" in algorithm and "lag 672" in algorithm
-        lag_days = 45 if is_adaptive_profile else (14 if (is_extra_trees or is_hgb_profile) else (7 if is_hybrid else _seasonal_lag_days(model)))
+        lag_days = 45 if is_adaptive_profile else (14 if (is_extra_trees or is_hgb_profile or is_drift_adaptive) else (7 if is_hybrid else _seasonal_lag_days(model)))
         if store.accepted_receipt_exists(cycle["cycle_id"], model["model_id"]):
             store.finish_run(run_id, "succeeded")
             print(f"cycle: {cycle['cycle_id']} already submitted")
@@ -545,7 +725,7 @@ def run_pipeline(
         history = store.history(
             station_ids,
             cycle["data_cutoff"],
-            points=5000 if (is_extra_trees or is_hgb_profile or is_adaptive_profile) else lag_days * 96 + 96,
+            points=5000 if (is_extra_trees or is_hgb_profile or is_adaptive_profile or is_drift_adaptive) else lag_days * 96 + 96,
         )
         history_points = {
             station_id: sum(1 for row in history if row["station_id"] == station_id)
@@ -558,7 +738,9 @@ def run_pipeline(
             f"max_points={max(history_points.values())} "
             f"cutoff={cycle['data_cutoff']}"
         )
-        if is_adaptive_profile:
+        if is_drift_adaptive:
+            predictions = drift_adaptive_predictions(history, cycle)
+        elif is_adaptive_profile:
             predictions = adaptive_profile_predictions(history, cycle)
         elif is_extra_trees or is_hgb_profile:
             try:

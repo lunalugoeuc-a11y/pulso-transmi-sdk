@@ -10,6 +10,7 @@ from pulso_transmi.client import PulsoTransmiClient
 from pulso_transmi.pipeline import (
     _timestamp,
     adaptive_profile_predictions,
+    drift_adaptive_predictions,
     extra_trees_predictions,
     hgb_profile_predictions,
     hybrid_seasonal_predictions,
@@ -21,6 +22,7 @@ PredictionFunction = Callable[
     [list[dict[str, Any]], dict[str, Any]], list[dict[str, Any]]
 ]
 CANDIDATES: dict[str, PredictionFunction] = {
+    "drift_adaptive": drift_adaptive_predictions,
     "adaptive_profile": adaptive_profile_predictions,
     "hgb_stack": hgb_profile_predictions,
     "extra_trees": extra_trees_predictions,
@@ -37,6 +39,8 @@ def publish_summary(message: str) -> None:
 
 def model_key(algorithm: str) -> str | None:
     value = algorithm.lower()
+    if "drift adaptive" in value and "extra trees" in value:
+        return "drift_adaptive"
     if "adaptive profile" in value and "hl14" in value:
         return "adaptive_profile"
     if "hgb" in value and "profile" in value:

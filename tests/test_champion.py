@@ -45,6 +45,7 @@ def test_selection_requires_material_gain_and_station_guardrail() -> None:
 
 def test_model_algorithm_mapping() -> None:
     assert model_key("Adaptive profile HL14") == "adaptive_profile"
+    assert model_key("Drift adaptive Extra Trees") == "drift_adaptive"
     assert model_key("Stacked HGB + profile") == "hgb_stack"
     assert model_key("Extra Trees") == "extra_trees"
     assert model_key("Hybrid lag 96 lag 672") == "daily_weekly"

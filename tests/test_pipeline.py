@@ -7,6 +7,7 @@ import pytest
 
 from pulso_transmi.pipeline import (
     adaptive_profile_predictions,
+    drift_adaptive_predictions,
     extra_trees_predictions,
     hgb_profile_predictions,
     run_pipeline,
@@ -238,6 +239,28 @@ def test_hgb_profile_predictions_respect_target_contract() -> None:
     predictions = hgb_profile_predictions(history, current)
     validate_exact_targets(predictions, current)
     assert len(predictions) == current["expected_predictions"]
+
+
+def test_drift_adaptive_predictions_follow_recent_regime() -> None:
+    current = cycle()
+    cutoff = datetime.fromisoformat(current["data_cutoff"])
+    start = cutoff - timedelta(days=10)
+    history = []
+    for station in ("02300", "03000"):
+        for index in range(10 * 96 + 1):
+            observed_at = start + timedelta(minutes=15 * index)
+            demand = 100 if observed_at < cutoff - timedelta(days=1) else 400
+            history.append(
+                {
+                    "station_id": station,
+                    "observed_at": observed_at.isoformat(),
+                    "demand": demand,
+                }
+            )
+    predictions = drift_adaptive_predictions(history, current)
+    validate_exact_targets(predictions, current)
+    assert len(predictions) == current["expected_predictions"]
+    assert min(prediction["value"] for prediction in predictions) > 250
 
 
 def test_adaptive_profile_uses_matching_weekday_and_slot() -> None:
