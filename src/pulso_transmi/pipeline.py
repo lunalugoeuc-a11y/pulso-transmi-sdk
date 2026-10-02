@@ -53,6 +53,10 @@ DRIFT_ADAPTIVE_FEATURES = (
 )
 DRIFT_ADAPTIVE_TRAINING_DAYS = 21
 DRIFT_ADAPTIVE_HALF_LIFE_DAYS = 3.0
+DRIFT_HORIZON_FEATURES = tuple(
+    feature for feature in DRIFT_ADAPTIVE_FEATURES if feature != "horizon_steps"
+)
+DRIFT_HORIZON_PERSISTENCE_WEIGHT_60M = 0.15
 
 
 def _timestamp(value: str) -> datetime:
@@ -463,6 +467,27 @@ def drift_adaptive_predictions(
     Short lags make the model responsive immediately after drift instead of
     waiting a full day for lag 96 to enter the new regime.
     """
+    return _drift_adaptive_predictions(history, cycle, separate_horizons=False)
+
+
+def drift_adaptive_horizon_predictions(
+    history: list[dict[str, Any]], cycle: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Fit one leakage-safe model per horizon and stabilize the 60m forecast.
+
+    Separating the estimators prevents the abundant short-horizon patterns from
+    dominating the weakest 60-minute horizon. The final 60-minute estimate is
+    blended conservatively with the last value known at the official cutoff.
+    """
+    return _drift_adaptive_predictions(history, cycle, separate_horizons=True)
+
+
+def _drift_adaptive_predictions(
+    history: list[dict[str, Any]],
+    cycle: dict[str, Any],
+    *,
+    separate_horizons: bool,
+) -> list[dict[str, Any]]:
     cutoff = _timestamp(cycle["data_cutoff"])
     frame = pd.DataFrame(history)
     if frame.empty:
@@ -533,19 +558,6 @@ def drift_adaptive_predictions(
         pd.Timestamp(cutoff) - training["observed_at"]
     ).dt.total_seconds() / 86400
     sample_weight = np.power(0.5, age_days / DRIFT_ADAPTIVE_HALF_LIFE_DAYS)
-    model = ExtraTreesRegressor(
-        n_estimators=240,
-        min_samples_leaf=5,
-        max_features=0.9,
-        n_jobs=-1,
-        random_state=42,
-    )
-    model.fit(
-        training[list(DRIFT_ADAPTIVE_FEATURES)],
-        training["demand"],
-        sample_weight=sample_weight,
-    )
-
     lookup = {
         (row.station_id, row.observed_at.to_pydatetime()): float(row.demand)
         for row in frame[["station_id", "observed_at", "demand"]].itertuples(
@@ -598,9 +610,52 @@ def drift_adaptive_predictions(
                 "level_change_7d": lag_cutoff - lag_7d,
             }
         )
-    values = model.predict(
-        pd.DataFrame(feature_rows)[list(DRIFT_ADAPTIVE_FEATURES)]
-    )
+    target_features = pd.DataFrame(feature_rows)
+    if separate_horizons:
+        values = np.empty(len(target_features), dtype=float)
+        for horizon_steps in sorted(target_features["horizon_steps"].unique()):
+            train_mask = training["horizon_steps"] == horizon_steps
+            target_mask = target_features["horizon_steps"] == horizon_steps
+            if int(train_mask.sum()) < 250:
+                raise RuntimeError(
+                    f"not enough history for horizon {15 * int(horizon_steps)}m"
+                )
+            model = ExtraTreesRegressor(
+                n_estimators=200,
+                min_samples_leaf=5,
+                max_features=0.9,
+                n_jobs=-1,
+                random_state=42 + int(horizon_steps),
+            )
+            model.fit(
+                training.loc[train_mask, list(DRIFT_HORIZON_FEATURES)],
+                training.loc[train_mask, "demand"],
+                sample_weight=sample_weight[train_mask.to_numpy()],
+            )
+            horizon_values = model.predict(
+                target_features.loc[target_mask, list(DRIFT_HORIZON_FEATURES)]
+            )
+            if int(horizon_steps) == 4:
+                persistence = target_features.loc[target_mask, "lag_cutoff"].to_numpy()
+                horizon_values = (
+                    (1.0 - DRIFT_HORIZON_PERSISTENCE_WEIGHT_60M) * horizon_values
+                    + DRIFT_HORIZON_PERSISTENCE_WEIGHT_60M * persistence
+                )
+            values[target_mask.to_numpy()] = horizon_values
+    else:
+        model = ExtraTreesRegressor(
+            n_estimators=240,
+            min_samples_leaf=5,
+            max_features=0.9,
+            n_jobs=-1,
+            random_state=42,
+        )
+        model.fit(
+            training[list(DRIFT_ADAPTIVE_FEATURES)],
+            training["demand"],
+            sample_weight=sample_weight,
+        )
+        values = model.predict(target_features[list(DRIFT_ADAPTIVE_FEATURES)])
     return [
         {
             "station_id": target["station_id"],
@@ -710,6 +765,7 @@ def run_pipeline(
         model = store.active_model()
         algorithm = model["algorithm"].lower()
         is_extra_trees = "extra trees" in algorithm
+        is_drift_horizon = "drift adaptive horizon" in algorithm
         is_drift_adaptive = "drift adaptive" in algorithm
         is_hgb_profile = "hgb" in algorithm and "profile" in algorithm
         is_adaptive_profile = "adaptive profile" in algorithm and "hl14" in algorithm
@@ -738,7 +794,9 @@ def run_pipeline(
             f"max_points={max(history_points.values())} "
             f"cutoff={cycle['data_cutoff']}"
         )
-        if is_drift_adaptive:
+        if is_drift_horizon:
+            predictions = drift_adaptive_horizon_predictions(history, cycle)
+        elif is_drift_adaptive:
             predictions = drift_adaptive_predictions(history, cycle)
         elif is_adaptive_profile:
             predictions = adaptive_profile_predictions(history, cycle)

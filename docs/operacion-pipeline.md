@@ -56,6 +56,12 @@ observaciones con vida media de tres días. La selección automática solo lo
 promueve si supera al champion sobre seis ciclos oficiales completos, conserva
 48/48 objetivos y respeta el guardrail de peor estación.
 
+El candidato 7.1.0 conserva esa preparación temporal, pero entrena un estimador
+independiente para cada horizonte y estabiliza el horizonte de 60 minutos con
+una mezcla conservadora del último nivel conocido. Se registra inicialmente
+como inactivo y queda sujeto a los mismos guardrails antes de cualquier
+promoción.
+
 ### Corrección de profundidad histórica
 
 El 27 de septiembre se detectó que la consulta del historial solicitaba 5.000
