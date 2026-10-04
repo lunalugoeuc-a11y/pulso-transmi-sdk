@@ -264,6 +264,30 @@ def test_drift_adaptive_predictions_follow_recent_regime() -> None:
     assert min(prediction["value"] for prediction in predictions) > 250
 
 
+def test_drift_adaptive_predictions_use_causal_fallback_for_missing_lag() -> None:
+    current = cycle()
+    cutoff = datetime.fromisoformat(current["data_cutoff"])
+    start = cutoff - timedelta(days=10)
+    history = []
+    for station in ("02300", "03000"):
+        for index in range(10 * 96 + 1):
+            observed_at = start + timedelta(minutes=15 * index)
+            if station == "02300" and observed_at == cutoff:
+                continue
+            history.append(
+                {
+                    "station_id": station,
+                    "observed_at": observed_at.isoformat(),
+                    "demand": 100 + index % 96,
+                }
+            )
+
+    predictions = drift_adaptive_predictions(history, current)
+
+    validate_exact_targets(predictions, current)
+    assert len(predictions) == current["expected_predictions"]
+
+
 def test_drift_horizon_predictions_follow_recent_regime() -> None:
     current = cycle()
     cutoff = datetime.fromisoformat(current["data_cutoff"])

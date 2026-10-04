@@ -5,6 +5,7 @@ import json
 import math
 import os
 import subprocess
+from bisect import bisect_right
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -564,6 +565,15 @@ def _drift_adaptive_predictions(
             index=False
         )
     }
+    station_history: dict[str, tuple[list[datetime], list[float]]] = {}
+    for station_id, station_frame in frame.groupby("station_id", observed=True):
+        ordered = station_frame.sort_values("observed_at")
+        station_history[str(station_id)] = (
+            [value.to_pydatetime() for value in ordered["observed_at"]],
+            [float(value) for value in ordered["demand"]],
+        )
+    causal_fallbacks = 0
+    max_fallback_age_minutes = 0
     feature_rows: list[dict[str, Any]] = []
     for target in cycle["targets"]:
         station_id = str(target["station_id"])
@@ -575,14 +585,33 @@ def _drift_adaptive_predictions(
         local_slot = int(local_target.hour * 4 + local_target.minute // 15)
 
         def demand_at(lag_steps: int) -> float:
+            nonlocal causal_fallbacks, max_fallback_age_minutes
+            requested_at = target_at - timedelta(minutes=15 * lag_steps)
             value = lookup.get(
-                (station_id, target_at - timedelta(minutes=15 * lag_steps))
+                (station_id, requested_at)
             )
-            if value is None:
+            if value is not None:
+                return value
+
+            station_times, station_values = station_history[station_id]
+            previous_index = bisect_right(station_times, requested_at) - 1
+            if previous_index < 0:
                 raise RuntimeError(
                     f"missing lag {lag_steps} for station {station_id}"
                 )
-            return value
+            age_minutes = int(
+                (requested_at - station_times[previous_index]).total_seconds() // 60
+            )
+            # A short causal carry-forward repairs sparse source missingness
+            # without inventing zero demand or reading beyond the cycle cutoff.
+            if age_minutes > 60:
+                raise RuntimeError(
+                    f"stale lag {lag_steps} for station {station_id}: "
+                    f"{age_minutes} minutes"
+                )
+            causal_fallbacks += 1
+            max_fallback_age_minutes = max(max_fallback_age_minutes, age_minutes)
+            return station_values[previous_index]
 
         lag_cutoff = demand_at(horizon_steps)
         lag_1h = demand_at(horizon_steps + 4)
@@ -609,6 +638,12 @@ def _drift_adaptive_predictions(
                 "level_change_1d": lag_cutoff - lag_1d,
                 "level_change_7d": lag_cutoff - lag_7d,
             }
+        )
+    if causal_fallbacks:
+        print(
+            "history: "
+            f"causal_lag_fallbacks={causal_fallbacks} "
+            f"max_staleness_minutes={max_fallback_age_minutes}"
         )
     target_features = pd.DataFrame(feature_rows)
     if separate_horizons:
