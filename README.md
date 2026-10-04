@@ -165,6 +165,11 @@ en `prediction_evaluations` y los resúmenes privados de los últimos seis ciclo
 en `official_model_last_six_metrics`; el proceso es idempotente y no altera ni
 reenvía submissions.
 
+El colector incremental acepta páginas mixtas del contrato de observación v1/v2.
+En v2 convierte `measurement.value` únicamente cuando `quality` es `observed`;
+los registros `missing` se conservan para auditoría y se excluyen del historial
+de entrenamiento, sin reemplazarlos por cero.
+
 ## Desarrollo del SDK
 
 ```bash

@@ -6,6 +6,8 @@ from typing import Any
 
 import httpx
 
+from pulso_transmi.observations import normalize_stream_page, stream_source_version
+
 
 class SupabaseStoreError(RuntimeError):
     """Raised when operational state cannot be persisted."""
@@ -114,14 +116,15 @@ class SupabaseStore:
     def ingest_observation_page(
         self, run_id: str, cursor: str | None, rows: list[dict[str, Any]]
     ) -> int:
+        normalized_rows = normalize_stream_page(rows)
         response = self._request(
             "POST",
             "/rpc/ingest_observation_page",
             json={
                 "p_pipeline_run_id": run_id,
                 "p_cursor": cursor,
-                "p_rows": rows,
-                "p_source_version": "competition-stream-v1",
+                "p_rows": normalized_rows,
+                "p_source_version": stream_source_version(normalized_rows),
             },
         )
         return int(response.json())
@@ -301,6 +304,8 @@ class SupabaseStore:
                     params={
                         "station_id": f"eq.{station_id}",
                         "observed_at": f"lte.{cutoff}",
+                        "quality": "eq.observed",
+                        "demand": "not.is.null",
                         "select": "station_id,observed_at,demand",
                         "order": "observed_at.desc",
                         "limit": requested,

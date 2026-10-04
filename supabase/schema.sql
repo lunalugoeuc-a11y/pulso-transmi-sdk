@@ -50,8 +50,18 @@ create table public.observations (
   context_id bigint not null references public.time_context on update cascade on delete restrict,
   batch_id uuid not null references public.data_batches on delete restrict,
   observed_at timestamptz not null,
-  demand integer not null check (demand >= 0),
+  demand numeric,
+  source_schema_version smallint not null default 1
+    check (source_schema_version in (1, 2)),
+  quality text not null default 'observed'
+    check (quality in ('observed', 'missing')),
+  unit text not null default 'passengers' check (unit = 'passengers'),
+  released_at timestamptz,
   ingested_at timestamptz not null default now(),
+  constraint observations_measurement_check check (
+    (quality = 'observed' and demand is not null and demand >= 0)
+    or (quality = 'missing' and demand is null)
+  ),
   constraint observations_station_time_unique unique (station_id, observed_at)
 );
 
@@ -292,7 +302,7 @@ create or replace function public.ingest_observation_page(
   p_pipeline_run_id uuid,
   p_cursor text,
   p_rows jsonb,
-  p_source_version text default 'competition-stream-v1'
+  p_source_version text default 'competition-stream-v1-v2'
 )
 returns integer
 language plpgsql
@@ -311,7 +321,8 @@ begin
   select count(*), max(observed_at), max(released_at)
   into v_count, v_last_observed_at, v_last_released_at
   from jsonb_to_recordset(p_rows) as row_data(
-    station_id text, observed_at timestamptz, demand integer, released_at timestamptz
+    station_id text, observed_at timestamptz, released_at timestamptz,
+    demand numeric, source_schema_version smallint, quality text, unit text
   );
   insert into public.data_batches (
     pipeline_run_id, cutoff_at, source_version, cursor_value, row_count
@@ -322,20 +333,30 @@ begin
   insert into public.time_context (observed_at)
   select distinct row_data.observed_at
   from jsonb_to_recordset(p_rows) as row_data(
-    station_id text, observed_at timestamptz, demand integer, released_at timestamptz
+    station_id text, observed_at timestamptz, released_at timestamptz,
+    demand numeric, source_schema_version smallint, quality text, unit text
   )
   on conflict (observed_at) do nothing;
   insert into public.observations (
-    station_id, context_id, batch_id, observed_at, demand
+    station_id, context_id, batch_id, observed_at, demand,
+    source_schema_version, quality, unit, released_at
   )
   select row_data.station_id, context.context_id, v_batch_id,
-         row_data.observed_at, row_data.demand
+         row_data.observed_at, row_data.demand,
+         row_data.source_schema_version, row_data.quality,
+         row_data.unit, row_data.released_at
   from jsonb_to_recordset(p_rows) as row_data(
-    station_id text, observed_at timestamptz, demand integer, released_at timestamptz
+    station_id text, observed_at timestamptz, released_at timestamptz,
+    demand numeric, source_schema_version smallint, quality text, unit text
   )
   join public.time_context context using (observed_at)
   on conflict (station_id, observed_at) do update
-    set demand = excluded.demand, context_id = excluded.context_id,
+    set demand = excluded.demand,
+        source_schema_version = excluded.source_schema_version,
+        quality = excluded.quality,
+        unit = excluded.unit,
+        released_at = excluded.released_at,
+        context_id = excluded.context_id,
         batch_id = excluded.batch_id, ingested_at = now();
   update public.collector_state
   set cursor_value = coalesce(p_cursor, cursor_value),

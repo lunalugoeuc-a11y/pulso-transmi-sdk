@@ -1,3 +1,4 @@
+import json
 from urllib.parse import parse_qs
 
 import httpx
@@ -35,8 +36,8 @@ def test_ingestion_uses_single_rpc_call() -> None:
             "run-id",
             "cursor-2",
             [
-                {"station_id": "02300", "observed_at": "2026-09-22T10:00:00Z", "demand": 3},
-                {"station_id": "02300", "observed_at": "2026-09-22T10:15:00Z", "demand": 4},
+                {"station_id": "02300", "observed_at": "2026-09-22T10:00:00Z", "released_at": "2026-09-22T10:15:00Z", "demand": 3},
+                {"station_id": "02300", "observed_at": "2026-09-22T10:15:00Z", "released_at": "2026-09-22T10:30:00Z", "demand": 4},
             ],
         )
 
@@ -44,6 +45,9 @@ def test_ingestion_uses_single_rpc_call() -> None:
     assert len(requests) == 1
     assert requests[0].url.path == "/rest/v1/rpc/ingest_observation_page"
     assert requests[0].headers["authorization"] == "Bearer header.payload.signature"
+    body = json.loads(requests[0].content)
+    assert body["p_source_version"] == "competition-stream-v1"
+    assert body["p_rows"][0]["quality"] == "observed"
 
 
 def test_evaluation_uses_backend_rpc() -> None:
@@ -150,6 +154,9 @@ def test_history_paginates_past_supabase_row_cap() -> None:
         "0",
         "1000",
     ]
+    first_query = parse_qs(requests[0].url.query.decode())
+    assert first_query["quality"] == ["eq.observed"]
+    assert first_query["demand"] == ["not.is.null"]
 
 
 def test_history_stops_when_station_history_is_exhausted() -> None:
